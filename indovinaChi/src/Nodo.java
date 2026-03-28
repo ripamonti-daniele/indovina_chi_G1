@@ -59,7 +59,7 @@ public class Nodo implements Serializable {
 
     private Nodo trovaNodo(String domanda, Nodo n) {
         if (n == null) return null;
-        if (n.getDomanda().equals(domanda)) return n;
+        if (n.getDomanda() != null && n.getDomanda().equals(domanda)) return n; //Fixato il NullPointException
         Nodo si = n.getSi();
         Nodo no = n.getNo();
         if (si != null) {
@@ -67,7 +67,6 @@ public class Nodo implements Serializable {
             if (nodo != null) return nodo;
         }
         return trovaNodo(domanda, no);
-
     }
 
     public void aggiungiNodo(String domandaRoot, String domanda, boolean si) {
