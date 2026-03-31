@@ -7,8 +7,8 @@ public class Nodo implements Serializable {
 
     private String domanda;
     private Persona persona;
-    private Nodo si;
-    private Nodo no;
+    protected Nodo si;
+    protected Nodo no;
 
     public Nodo(String domanda) {
         setDomanda(domanda);
@@ -37,12 +37,16 @@ public class Nodo implements Serializable {
         domanda = null;
     }
 
-    private Nodo getSi() {
+    public Nodo getSi() {
         return si;
     }
 
-    private Nodo getNo() {
+    public Nodo getNo() {
         return no;
+    }
+
+    public Persona getPersona() {
+        return persona;
     }
 
     private void setSi(Nodo n) {
@@ -58,6 +62,7 @@ public class Nodo implements Serializable {
     }
 
     private Nodo trovaNodo(String domanda, Nodo n) {
+
         if (n == null) return null;
         if (n.getDomanda() != null && n.getDomanda().equals(domanda)) return n; //Fixato il NullPointException
         Nodo si = n.getSi();

@@ -1,0 +1,20 @@
+1) Classe persona
+	da rendere più accurata (per esempio aggiungere la possibilità di avere la barba di lunghezza o colore diversi)
+	associare un oggetto persona a un'immagine (per esempio estendendo la classe)
+
+2) albero
+	a partire da delle domande si/no si divide in altre domande si/no. quando sono state raggiunte abbastanza informazioni viene indicata la persona che corrisponde alla descrizione.
+	la classe deve essere generica in modo da creare alberi diversi che hanno lo stesso funzionamento ma chiedono domande diverse (oppure le stesse domande in ordine diverso)
+	ogni albero ha la possibilità di aggiungere una nuova persona
+	
+3) grafica
+	si crea un interfaccia grafica con cui i due giocatori interagiscono con i metodi di albero.
+	una volta finita una partita si può giocare ancora e si resettano gli oggetti oppure se ne creano dei nuovi
+
+4) serializzazione
+	l'albero di base viene serializzato su un file che non viene modificato
+	se un albero viene modificato lo si serializza se un file apposta
+	se la deserializzazione dell'albero modificato non va a buon fine si prende l'albero di base
+
+5) bot
+	si crea un bot che possa giocare in modo autonomo

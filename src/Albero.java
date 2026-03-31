@@ -45,6 +45,11 @@ public class Albero implements Serializable {
         root.aggiungiPersona(domandaRoot, persona, si);
     }
 
+    public Nodo getRoot(){
+        return root;
+    }
+
+
     @Override
     public String toString() {
         return "root albero: " + root.toString();

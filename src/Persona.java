@@ -1,3 +1,5 @@
+import javax.swing.*;
+import java.awt.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -5,17 +7,30 @@ import java.util.List;
 
 public class Persona implements Serializable {
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     private String nome;
     private ColoriCrapa coloreCapelli;
     private ColoriÖch coloreOcchi;
     private ColoriPelle colorePelle;
     private boolean occhiali;
-    private boolean sesso; //true = maschio; false = femmina
+    private boolean sesso;
     private boolean capelliLunghi;
     private int eta;
+    private String percorsoImmagine; //aggiunta l'immagine associata alla persona
     private final static List<String> nomi = new ArrayList<>();
+
+    public Persona(String nome, int eta, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, String percorsoImmagine) {
+        setNome(nome);
+        setEta(eta);
+        setColoreCapelli(cc);
+        setColoreOcchi(co);
+        setColorePelle(cp);
+        setOcchiali(occhiali);
+        setSesso(sesso);
+        setCapelliLunghi(capelliLunghi);
+        setPercorsoImmagine(percorsoImmagine);
+    }
 
     public Persona(String nome, int eta, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi) {
         setNome(nome);
@@ -26,6 +41,26 @@ public class Persona implements Serializable {
         setOcchiali(occhiali);
         setSesso(sesso);
         setCapelliLunghi(capelliLunghi);
+
+    }
+
+    private void setPercorsoImmagine(String percorso) {
+        if (percorso == null || percorso.isBlank())
+            throw new IllegalArgumentException("Il percorso non può essere vuoto");
+        this.percorsoImmagine = percorso;
+    }
+
+    public String getPercorsoImmagine() {
+        return percorsoImmagine;
+    }
+
+    public ImageIcon getImmagine() {
+        return new ImageIcon(percorsoImmagine);
+    }
+    //utilizzo per swing
+    public ImageIcon getImmagine(int larghezza, int altezza) {
+        Image scalata = getImmagine().getImage().getScaledInstance(larghezza, altezza, Image.SCALE_SMOOTH);
+        return new ImageIcon(scalata);
     }
 
     public String getNome() {
