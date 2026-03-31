@@ -17,7 +17,7 @@ public class Persona implements Serializable {
     private boolean sesso;
     private boolean capelliLunghi;
     private int eta;
-    private String percorsoImmagine; //aggiunta l'immagine associata alla persona
+    private String percorsoImmagine;
     private final static List<String> nomi = new ArrayList<>();
 
     public Persona(String nome, int eta, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, String percorsoImmagine) {
