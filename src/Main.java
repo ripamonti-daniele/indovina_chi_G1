@@ -109,7 +109,6 @@ void main() {
 //    Serializzatore.serializza(a, "alberiBase.ser");
 
 
-
     //la parte commentata sopra è da cambiare solo se si vuole modificare la struttura dell'albero
 
     Albero alb = null;
