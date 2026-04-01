@@ -34,6 +34,7 @@ public class Serializzatore {
             throw new RuntimeException("Errore nella deSerializzazione del file " + percorso);
         }
         catch (ClassNotFoundException e) {
+            if (!percorso.equals("alberiBase.ser")) return deSerializza("alberiBase.ser");
             throw new RuntimeException("Errore: non è stato deSerializzato un Object");
         }
     }

@@ -44,6 +44,18 @@ public class Persona implements Serializable {
 
     }
 
+    public Persona(Persona p) {
+        this.nome = p.nome;
+        this.coloreCapelli = p.coloreCapelli;
+        this.coloreOcchi = p.coloreOcchi;
+        this.colorePelle = p.colorePelle;
+        this.occhiali = p.occhiali;
+        this.sesso = p.sesso;
+        this.capelliLunghi = p.capelliLunghi;
+        this.eta = p.eta;
+        this.percorsoImmagine = p.percorsoImmagine;
+    }
+
     private void setPercorsoImmagine(String percorso) {
         if (percorso == null || percorso.isBlank())
             throw new IllegalArgumentException("Il percorso non può essere vuoto");

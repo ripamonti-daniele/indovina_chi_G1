@@ -5,19 +5,28 @@ public class Nodo implements Serializable {
     @Serial
     private static final long serialVersionUID = 2L;
 
+    private static int contatore = 0;
+    private final int id;
+
     private String domanda;
     private Persona persona;
     protected Nodo si;
     protected Nodo no;
 
     public Nodo(String domanda) {
+        this.id = contatore++;
         setDomanda(domanda);
         si = null;
         no = null;
     }
 
     public Nodo(Persona p) {
+        this.id = contatore++;
         setPersona(p);
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getDomanda() {
@@ -26,7 +35,8 @@ public class Nodo implements Serializable {
 
     private void setDomanda(String domanda) {
         domanda = domanda.trim().toLowerCase();
-        if (domanda.isEmpty() || domanda.length() > 25) throw new IllegalArgumentException("Lunghezza domanda non valida");
+        if (domanda.isEmpty() || domanda.length() > 40)
+            throw new IllegalArgumentException("Lunghezza domanda non valida");
         this.domanda = domanda;
         persona = null;
     }
@@ -40,13 +50,13 @@ public class Nodo implements Serializable {
     public Nodo getSi() {
         return si;
     }
-
     public Nodo getNo() {
         return no;
     }
 
     public Persona getPersona() {
-        return persona;
+        if (persona == null) return null;
+        return new Persona(persona);
     }
 
     private void setSi(Nodo n) {
@@ -57,41 +67,66 @@ public class Nodo implements Serializable {
 
     private void setNo(Nodo n) {
         if (persona != null) throw new IllegalStateException("I nodi persona non possono avere sottonodi");
-        if (no != null) throw new IllegalArgumentException("Nodo no di" + domanda + " già occupato");
+        if (no != null) throw new IllegalArgumentException("Nodo no di " + domanda + " già occupato");
         no = n;
     }
 
-    private Nodo trovaNodo(String domanda, Nodo n) {
+//    private Nodo trovaNodoPerDomanda(String domanda, Nodo n) {
+//        if (n == null) return null;
+//        if (n.getDomanda() != null && n.getDomanda().equals(domanda)) return n;
+//        Nodo trovato = trovaNodoPerDomanda(domanda, n.si);
+//        if (trovato != null) return trovato;
+//        return trovaNodoPerDomanda(domanda, n.no);
+//    }
 
+    private Nodo trovaNodoPerID(int id, Nodo n) {
         if (n == null) return null;
-        if (n.getDomanda() != null && n.getDomanda().equals(domanda)) return n; //Fixato il NullPointException
-        Nodo si = n.getSi();
-        Nodo no = n.getNo();
-        if (si != null) {
-            Nodo nodo = trovaNodo(domanda, si);
-            if (nodo != null) return nodo;
-        }
-        return trovaNodo(domanda, no);
+        if (n.id == id) return n;
+        Nodo trovato = trovaNodoPerID(id, n.si);
+        if (trovato != null) return trovato;
+        return trovaNodoPerID(id, n.no);
     }
 
-    public void aggiungiNodo(String domandaRoot, String domanda, boolean si) {
-        Nodo n = trovaNodo(domandaRoot, this);
-        if (n == null) throw new IllegalArgumentException("Nessun nodo con domanda " + domandaRoot + " trovato");
-        else if (si) n.setSi(new Nodo(domanda));
-        else n.setNo(new Nodo(domanda));
+    public Nodo aggiungiNodo(int idRoot, String domanda, boolean si) {
+        Nodo padre = trovaNodoPerID(idRoot, this);
+        if (padre == null) throw new IllegalArgumentException("Nessun nodo con id " + idRoot + " trovato");
+        Nodo nuovo = new Nodo(domanda);
+        if (si) padre.setSi(nuovo);
+        else    padre.setNo(nuovo);
+        return nuovo; // restituisce il nodo creato così si può salvare l'id
     }
 
-    public void aggiungiPersona(String domandaRoot, Persona persona, boolean si) {
-        Nodo n = trovaNodo(domandaRoot, this);
-        if (n == null) throw new IllegalArgumentException("Nessun nodo con domanda " + domandaRoot + " trovato");
-        else if (si) n.setSi(new Nodo(persona));
-        else n.setNo(new Nodo(persona));
+    public Nodo aggiungiPersona(int idRoot, Persona persona, boolean si) {
+        Nodo padre = trovaNodoPerID(idRoot, this);
+        if (padre == null) throw new IllegalArgumentException("Nessun nodo con id " + idRoot + " trovato");
+        Nodo nuovo = new Nodo(persona);
+        if (si) padre.setSi(nuovo);
+        else    padre.setNo(nuovo);
+        return nuovo;
     }
+
+//    public Nodo aggiungiNodo(String domandaRoot, String domanda, boolean si) {
+//        Nodo padre = trovaNodoPerDomanda(domandaRoot, this);
+//        if (padre == null) throw new IllegalArgumentException("Nessun nodo con domanda " + domandaRoot + " trovato");
+//        Nodo nuovo = new Nodo(domanda);
+//        if (si) padre.setSi(nuovo);
+//        else    padre.setNo(nuovo);
+//        return nuovo;
+//    }
+//
+//    public Nodo aggiungiPersona(String domandaRoot, Persona persona, boolean si) {
+//        Nodo padre = trovaNodoPerDomanda(domandaRoot, this);
+//        if (padre == null) throw new IllegalArgumentException("Nessun nodo con domanda " + domandaRoot + " trovato");
+//        Nodo nuovo = new Nodo(persona);
+//        if (si) padre.setSi(nuovo);
+//        else    padre.setNo(nuovo);
+//        return nuovo;
+//    }
 
     @Override
     public String toString() {
-        if (persona != null) return persona.getNome() + " (persona)\n";
-        String s = domanda + "\n";
+        if (persona != null) return "[" + id + "] " + persona.getNome() + " (persona)\n";
+        String s = "[" + id + "] " + domanda + "\n";
         if (si != null) s += domanda + " --> si: " + si;
         if (no != null) s += domanda + " --> no: " + no;
         return s;

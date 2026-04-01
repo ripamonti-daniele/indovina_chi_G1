@@ -1,6 +1,7 @@
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Albero implements Serializable {
     @Serial
@@ -12,46 +13,55 @@ public class Albero implements Serializable {
         root = new Nodo(domandaRoot);
     }
 
-    public Albero(String domandaRoot, List<InfoNodo> nodi) {
-        this(domandaRoot);
-        inserisciNodi(nodi);
+    public int getRootId() {
+        return root.getId();
     }
 
-    public void inserisciNodi(List<InfoNodo> nodi) {
-        if (nodi == null) throw new IllegalArgumentException("I nodi non possono essere null");
-        for (InfoNodo n : nodi) {
-            root.aggiungiNodo(n.domandaRoot(), n.domanda(), n.si());
-        }
-    }
-    public void inserisciNodo(InfoNodo n) {
-        root.aggiungiNodo(n.domandaRoot(), n.domanda(), n.si());
+    public int inserisciDomanda(int idRoot, String domanda, boolean si) {
+        return root.aggiungiNodo(idRoot, domanda, si).getId();
     }
 
-    public void inserisciNodo(String domandaRoot, String domanda, boolean si) {
-        root.aggiungiNodo(domandaRoot, domanda, si);
+    public int inserisciPersona(int idRoot, Persona persona, boolean si) {
+        return root.aggiungiPersona(idRoot, persona, si).getId();
     }
 
-    public void inserisciPersone(List<InfoPersona> nodi) {
-        if (nodi == null) throw new IllegalArgumentException("I nodi non possono essere null");
-        for (InfoPersona n : nodi) {
-            root.aggiungiPersona(n.domandaRoot(), n.persona(), n.si());
-        }
-    }
-    public void inserisciPersona(InfoPersona n) {
-        root.aggiungiPersona(n.domandaRoot(), n.persona(), n.si());
-    }
-
-    public void inserisciPersona(String domandaRoot, Persona persona, boolean si) {
-        root.aggiungiPersona(domandaRoot, persona, si);
-    }
-
-    public Nodo getRoot(){
+    public Nodo getRoot() {
         return root;
     }
 
+    public Map<Integer, String> getDomande() {
+        Map<Integer, String> mappa = new HashMap<>();
+        trovaDomande(root, mappa);
+        return mappa;
+    }
+
+    private void trovaDomande(Nodo n, Map<Integer, String> mappa) {
+        if (n == null) return;
+        if (n.getDomanda() != null) {
+            mappa.put(n.getId(), n.getDomanda());
+            trovaDomande(n.getSi(), mappa);
+            trovaDomande(n.getNo(), mappa);
+        }
+    }
+
+    public Map<Integer, Persona> getPersone() {
+        Map<Integer, Persona> mappa = new HashMap<>();
+        trovaPersone(root, mappa);
+        return mappa;
+    }
+
+    private void trovaPersone(Nodo n, Map<Integer, Persona> mappa) {
+        if (n == null) return;
+        if (n.getPersona() != null) {
+            mappa.put(n.getId(), n.getPersona());
+            return;
+        }
+        trovaPersone(n.getSi(), mappa);
+        trovaPersone(n.getNo(), mappa);
+    }
 
     @Override
     public String toString() {
-        return "root albero: " + root.toString();
+        return "root albero: " + root;
     }
 }
