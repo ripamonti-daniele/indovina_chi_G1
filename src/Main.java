@@ -113,7 +113,7 @@ void main() {
 
     Albero alb = null;
     try {
-        List<Albero> alberi = Serializzatore.deSerializza("alberiBase.ser");
+        List<Albero> alberi = Serializzatore.deSerializza("src/alberiBase.ser");
         if (alberi != null && !alberi.isEmpty()) alb = alberi.getFirst();
     }
     catch (Exception e) {
