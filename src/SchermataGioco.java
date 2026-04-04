@@ -19,7 +19,7 @@ public class SchermataGioco extends JFrame {
 
     private Nodo scelta;
 
-    public SchermataGioco(Albero albero) {
+    public SchermataGioco(List<Persona> persone) {
         setTitle("IndovinaChi");
         setLocationRelativeTo(null);
         setExtendedState(MAXIMIZED_BOTH);
@@ -33,12 +33,9 @@ public class SchermataGioco extends JFrame {
         pannelloGriglia.setOpaque(false);
         pannelloGriglia.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        persone = new ArrayList<>();
-        Map<Integer, Persona> p = albero.getPersone();
+        this.persone = persone;
 
-        for (int id : p.keySet()) {
-            Persona persona = p.get(id);
-            persone.add(persona);
+        for (Persona persona : persone) {
 
             //mostra il rosso tra le carte
             JPanel cella = new JPanel(new GridBagLayout());

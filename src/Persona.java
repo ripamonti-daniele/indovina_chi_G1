@@ -16,32 +16,28 @@ public class Persona implements Serializable {
     private boolean occhiali;
     private boolean sesso;
     private boolean capelliLunghi;
-    private int eta;
+    private boolean barba;
+    private boolean cappello;
+    private boolean pelato;
     private String percorsoImmagine;
     private final static List<String> nomi = new ArrayList<>();
 
-    public Persona(String nome, int eta, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, String percorsoImmagine) {
-        setNome(nome);
-        setEta(eta);
-        setColoreCapelli(cc);
-        setColoreOcchi(co);
-        setColorePelle(cp);
-        setOcchiali(occhiali);
-        setSesso(sesso);
-        setCapelliLunghi(capelliLunghi);
+    public Persona(String nome, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato, String percorsoImmagine) {
+        this(nome, cc, co, cp, occhiali, sesso, capelliLunghi, barba, cappello, pelato);
         setPercorsoImmagine(percorsoImmagine);
     }
 
-    public Persona(String nome, int eta, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi) {
+    public Persona(String nome, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato) {
         setNome(nome);
-        setEta(eta);
         setColoreCapelli(cc);
         setColoreOcchi(co);
         setColorePelle(cp);
         setOcchiali(occhiali);
         setSesso(sesso);
         setCapelliLunghi(capelliLunghi);
-
+        setBarba(barba);
+        setCappello(cappello);
+        setPelato(pelato);
     }
 
     public Persona(Persona p) {
@@ -52,7 +48,8 @@ public class Persona implements Serializable {
         this.occhiali = p.occhiali;
         this.sesso = p.sesso;
         this.capelliLunghi = p.capelliLunghi;
-        this.eta = p.eta;
+        this.barba = p.barba;
+        this.cappello = p.cappello;
         this.percorsoImmagine = p.percorsoImmagine;
     }
 
@@ -139,13 +136,28 @@ public class Persona implements Serializable {
         this.capelliLunghi = capelliLunghi;
     }
 
-    public int getEta() {
-        return eta;
+    public boolean isBarba() {
+        return barba;
     }
 
-     void setEta(int eta) {
-        if (eta < 0) throw new IllegalArgumentException("L'età non può essere negativa");
-        this.eta = eta;
+    private void setBarba(boolean barba) {
+        this.barba = barba;
+    }
+
+    public boolean isCappello() {
+        return cappello;
+    }
+
+    private void setCappello(boolean cappello) {
+        this.cappello = cappello;
+    }
+
+    public boolean isPelato() {
+        return pelato;
+    }
+
+    private void setPelato(boolean pelato) {
+        this.pelato = pelato;
     }
 
     public static List<String> getNomi() {
@@ -154,6 +166,7 @@ public class Persona implements Serializable {
 
     @Override
     public String toString() {
+        //aggiungere i nuovi attributi
         String s = "occhiali: ";
         if (occhiali) s += "si";
         else s += "no";
@@ -161,6 +174,6 @@ public class Persona implements Serializable {
         else s += ", sesso: femmina";
         if (capelliLunghi) s += ", capelli: lunghi";
         else s += ", capelli : corti";
-        return "nome: " + nome + ", età: " + eta + ", coloreCapelli: " + coloreCapelli + ", coloreOcchi: " + coloreOcchi + ", colorePelle: " + colorePelle + ", " + s;
+        return "nome: " + nome + ", coloreCapelli: " + coloreCapelli + ", coloreOcchi: " + coloreOcchi + ", colorePelle: " + colorePelle + ", " + s;
     }
 }

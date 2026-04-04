@@ -37,6 +37,8 @@ public class LogicaGioco {
     }
 
     //elimina le carte che non corrispondono alla risposta data.
+
+    //da adattare ai nuovi attributi di persona
     private boolean verificaCaratteristica(Persona p, String domanda) {
         boolean risultato = false;
         switch (domanda.toLowerCase()) {
@@ -61,9 +63,9 @@ public class LogicaGioco {
             case "capelli_rossi":
                 risultato = p.getColoreCapelli() == ColoriCrapa.ROSSO;
                 break;
-            case "capelli_bilati":
-                risultato = p.getColoreCapelli() == ColoriCrapa.BILATO;
-                break;
+//            case "capelli_bilati":
+//                risultato = p.getColoreCapelli() == ColoriCrapa.BILATO;
+//                break;
             case "occhi_blu":
                 risultato = p.getColoreOcchi() == ColoriÖch.BLU;
                 break;
