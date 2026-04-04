@@ -1,8 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class SchermataGioco extends JFrame {
 
@@ -16,6 +15,7 @@ public class SchermataGioco extends JFrame {
 
     private final List<Persona> persone;
     private List<JPanel> carte = new ArrayList<>();
+    private final Map<String, JPanel> cartaPerNome = new HashMap<>();
 
     private Nodo scelta;
 
@@ -58,6 +58,7 @@ public class SchermataGioco extends JFrame {
             cella.add(carta);
             pannelloGriglia.add(cella);
             carte.add(cella);
+            cartaPerNome.put(persona.getNome(), carta);
 
             carta.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
@@ -105,6 +106,12 @@ public class SchermataGioco extends JFrame {
         no.setForeground(Color.WHITE);
         no.setFocusPainted(false);
 
+        //vado a mostrare la prima domanda
+        scelta = albero.getRoot();
+        aggiornadomanda();
+
+        si.addActionListener(e -> avanza(true));
+        no.addActionListener(e -> avanza(false));
 
         pannelloBottoni.add(si);
         pannelloBottoni.add(no);
@@ -117,5 +124,82 @@ public class SchermataGioco extends JFrame {
         add(pannelloDomanda, BorderLayout.EAST);
 
         setVisible(true);
+    }
+
+    //aggiorno il testo all'interno del pannello delle domande
+    private void aggiornadomanda(){
+        if(scelta != null){
+            if(scelta.getDomanda() != null){
+                domande.setText(scelta.getDomanda());
+            }
+        }else{
+            throw new IllegalArgumentException("scegli prima il personaggio");
+        }
+    }
+
+    private void avanza(boolean risposta) {
+        if (scelta == null || scelta.getDomanda() == null) return;
+
+        // raccoglie le persone raggiungibili dal ramo SCARTATO
+        Nodo ramoScartato;
+        if (risposta){
+            ramoScartato = scelta.getNo();
+        }else{
+            ramoScartato = scelta.getSi();
+        }
+        List<String> daAbbattere = personeRaggiungibili(ramoScartato);
+
+        // abbatte le carte corrispondenti
+        for (String nome : daAbbattere) {
+            abbattiCarta(nome);
+        }
+
+        // avanza al nodo scelto
+        if (risposta) scelta = scelta.getSi();
+        else scelta = scelta.getNo();
+
+        if (scelta == null) {
+            // ramo vuoto nell'albero: non dovrebbe succedere con un albero ben costruito
+            domande.setText("Nessun ramo disponibile.");
+            si.setEnabled(false);
+            no.setEnabled(false);
+            return;
+        }
+
+        if (scelta.getPersona() != null) {
+            // siamo arrivati a una persona: fine partita
+            domande.setText("La persona è: " + scelta.getPersona().getNome());
+            si.setEnabled(false);
+            no.setEnabled(false);
+        } else {
+            aggiornadomanda();
+        }
+    }
+
+    private List<String> personeRaggiungibili(Nodo n) {
+        List<String> nomi = new ArrayList<>();
+        raccogliPersone(n, nomi);
+        return nomi;
+    }
+
+    private void raccogliPersone(Nodo n, List<String> nomi) {
+        if (n == null) {
+            return;
+        }
+        if (n.getPersona() != null) {
+            nomi.add(n.getPersona().getNome());
+            return;
+        }
+        raccogliPersone(n.getSi(), nomi);
+        raccogliPersone(n.getNo(), nomi);
+    }
+
+    private void abbattiCarta(String nome) {
+        JPanel carta = cartaPerNome.get(nome);
+        if (carta == null) return;
+        carta.setBackground(Color.YELLOW);
+        carta.removeAll();
+        carta.revalidate();
+        carta.repaint();
     }
 }
