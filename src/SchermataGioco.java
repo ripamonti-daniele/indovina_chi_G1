@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.*;
 import java.util.List;
+import java.util.Map;
 
 public class SchermataGioco extends JFrame {
 
@@ -36,7 +38,6 @@ public class SchermataGioco extends JFrame {
         this.persone = persone;
 
         for (Persona persona : persone) {
-
             //mostra il rosso tra le carte
             JPanel cella = new JPanel(new GridBagLayout());
             cella.setOpaque(false);
@@ -79,7 +80,7 @@ public class SchermataGioco extends JFrame {
         titoloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         titoloLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
 
-        //questa parte serve per le domande, per chi continua con il bot per cambiare ciò che c'è scritto dentro basta basta fare domande.setText(...);
+        //questa parte serve per le domande, per chi continua con il bot per cambiare ciò che c'è scritto dentro basta fare domande.setText(...);
         domande = new JTextArea("");
         domande.setLineWrap(true); //va a capo automaticamente
         domande.setWrapStyleWord(true); //va a capo tutta la parola
@@ -104,14 +105,14 @@ public class SchermataGioco extends JFrame {
         no.setFocusPainted(false);
 
         //vado a mostrare la prima domanda
-        scelta = albero.getRoot();
-        aggiornadomanda();
-
-        si.addActionListener(e -> avanza(true));
-        no.addActionListener(e -> avanza(false));
-
-        pannelloBottoni.add(si);
-        pannelloBottoni.add(no);
+//        scelta = albero.getRoot();
+//        aggiornadomanda();
+//
+//        si.addActionListener(e -> avanza(true));
+//        no.addActionListener(e -> avanza(false));
+//
+//        pannelloBottoni.add(si);
+//        pannelloBottoni.add(no);
 
         pannelloDomanda.add(titoloLabel);
         pannelloDomanda.add(domande);

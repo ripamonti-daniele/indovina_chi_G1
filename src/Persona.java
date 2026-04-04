@@ -50,6 +50,7 @@ public class Persona implements Serializable {
         this.capelliLunghi = p.capelliLunghi;
         this.barba = p.barba;
         this.cappello = p.cappello;
+        this.pelato = p.pelato;
         this.percorsoImmagine = p.percorsoImmagine;
     }
 
