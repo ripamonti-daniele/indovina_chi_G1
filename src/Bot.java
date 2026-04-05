@@ -32,21 +32,23 @@ public class Bot {
         List<Persona> personeSI = new ArrayList<>(opzioni.get(domandaRoot + "S"));
         List<Persona> personeNO = new ArrayList<>(opzioni.get(domandaRoot + "N"));
 
-        costruisciSottoAlbero(albero, albero.getRootId(), true,  personeSI, new ArrayList<>(domandeUsate));
-        costruisciSottoAlbero(albero, albero.getRootId(), false, personeNO, new ArrayList<>(domandeUsate));
+
+        List<String> confermateSI = new ArrayList<>();
+        confermateSI.add(domandaRoot);
+        costruisciSottoAlbero(albero, albero.getRootId(), true,  personeSI, new ArrayList<>(domandeUsate), confermateSI);
+
+        costruisciSottoAlbero(albero, albero.getRootId(), false, personeNO, new ArrayList<>(domandeUsate), new ArrayList<>());
 
         return albero;
     }
 
 
-    private void costruisciSottoAlbero(Albero albero, int idPadre, boolean rispostaPadre, List<Persona> personeCorrente, List<String> domandeUsate) {
-        if (personeCorrente.isEmpty()) {
-            // ramo morto: nessuna persona rimasta
-            return;
-        }
+    private void costruisciSottoAlbero(Albero albero, int idPadre, boolean rispostaPadre, List<Persona> personeCorrente, List<String> domandeUsate, List<String> domandeConfermate) {
+        // ramo morto: nessuna persona rimasta
+        if (personeCorrente.isEmpty()) return;
 
+        // unica persona rimasta
         if (personeCorrente.size() == 1) {
-            // unica persona rimasta
             albero.inserisciPersona(idPadre, personeCorrente.getFirst(), rispostaPadre);
             return;
         }
@@ -54,12 +56,14 @@ public class Bot {
         // scegliamo una domanda random tra quelle non ancora usate
         List<String> disponibili = new ArrayList<>();
         for (String d : domande) {
-            if (!domandeUsate.contains(d)) disponibili.add(d);
+            //categoriaGiaConfermata(d, domandeConfermate)): se una domanda con la stessa categoria ha avuto come risposta si
+            //puoi escluderla
+            if (!domandeUsate.contains(d) && !categoriaGiaConfermata(d, domandeConfermate)) disponibili.add(d);
         }
+
 
         Collections.shuffle(disponibili);
         String domandaScelta = disponibili.getFirst();
-
 
         List<Persona> tutteSI = opzioni.get(domandaScelta + "S");
         List<Persona> tutteNO = opzioni.get(domandaScelta + "N");
@@ -73,18 +77,48 @@ public class Bot {
         List<String> nuoveUsate = new ArrayList<>(domandeUsate);
         nuoveUsate.add(domandaScelta);
 
-        // richiamo la funzione (effetto ricorsione(
-        costruisciSottoAlbero(albero, idNuovo, true,  filtroSI, new ArrayList<>(nuoveUsate));
-        costruisciSottoAlbero(albero, idNuovo, false, filtroNO, new ArrayList<>(nuoveUsate));
+        // ramo si: la domanda è confermata quindi la aggiungo a domandeconfermate
+        List<String> nuoveConfermateSI = new ArrayList<>(domandeConfermate);
+        nuoveConfermateSI.add(domandaScelta);
+
+        // ramo no: la domanda non è confermata quindi domandeconfermate rimane invariata
+        List<String> nuoveConformateNO = new ArrayList<>(domandeConfermate);
+
+        costruisciSottoAlbero(albero, idNuovo, true,  filtroSI, new ArrayList<>(nuoveUsate), nuoveConfermateSI);
+        costruisciSottoAlbero(albero, idNuovo, false, filtroNO, new ArrayList<>(nuoveUsate), nuoveConformateNO);
+    }
+
+    //serve per controllare se la domanda appartiene a una categoria gia risolta
+
+    private boolean categoriaGiaConfermata(String domanda, List<String> domandeConfermate) {
+        String[] capelli = {"ha i capelli castani?", "ha i capelli neri?", "ha i capelli biondi?", "ha i capelli rossi?", "ha i capelli bianchi?"};
+        String[] occhi   = {"ha gli occhi marroni?", "ha gli occhi blu?", "ha gli occhi verdi?"};
+        String[] pelle   = {"ha la pelle bianca?", "ha la pelle nera?", "ha la pelle mulatta?"};
+
+        String[] categoria = null;
+        for (String c : capelli) if (c.equals(domanda)) { categoria = capelli; break; }
+        if (categoria == null)
+            for (String c : occhi) if (c.equals(domanda)) { categoria = occhi; break; }
+        if (categoria == null)
+            for (String c : pelle) if (c.equals(domanda)) { categoria = pelle; break; }
+
+        //esempio: categoria calvi, occhiali ecc ecc...
+        if (categoria == null) return false;
+
+        for (String confermata : domandeConfermate)
+            for (String c : categoria)
+                if (c.equals(confermata)) return true;
+
+        return false;
     }
 
     //intersezione tra 2 liste di persone (in questo caso tra le persone rimaste nel nodo e le persone tutte si/no)
     private List<Persona> interseca(List<Persona> a, List<Persona> b) {
         List<Persona> risultato = new ArrayList<>();
-        for (Persona personaA : a)
-            for (Persona personaB : b)
-                if (personaA.getNome().equals(personaB.getNome())) {
-                    risultato.add(personaA);
+        for (Persona pA : a)
+            for (Persona pB : b)
+                if (pA.getNome().equals(pB.getNome())) {
+                    risultato.add(pA);
                     break;
                 }
         return risultato;
