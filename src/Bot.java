@@ -1,4 +1,9 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Bot {
     private final Map<String, List<Persona>> opzioni = new HashMap<>();
@@ -14,19 +19,75 @@ public class Bot {
         inizializza();
     }
 
-    private void creaAlbero() {
-        List<Integer> indici = new ArrayList<>();
-        for (int i = 0; i < domande.length; i++) indici.add(i);
-        Collections.shuffle(indici);
+    public Albero creaAlbero() {
+        List<String> domandeList = new ArrayList<>(Arrays.asList(domande));
+        Collections.shuffle(domandeList);
 
-        Albero a = new Albero(domande[indici.getFirst()]);
+        String domandaRoot = domandeList.removeFirst();
+        Albero albero = new Albero(domandaRoot);
 
-        //da implementare algoritmo per creare l'albero in modoi automatico
+        List<String> domandeUsate = new ArrayList<>();
+        domandeUsate.add(domandaRoot);
 
-//        for (int i : indici) {
-//            if (i == indici.getFirst()) continue;
-//
-//        }
+        List<Persona> personeSI = new ArrayList<>(opzioni.get(domandaRoot + "S"));
+        List<Persona> personeNO = new ArrayList<>(opzioni.get(domandaRoot + "N"));
+
+        costruisciSottoAlbero(albero, albero.getRootId(), true,  personeSI, new ArrayList<>(domandeUsate));
+        costruisciSottoAlbero(albero, albero.getRootId(), false, personeNO, new ArrayList<>(domandeUsate));
+
+        return albero;
+    }
+
+
+    private void costruisciSottoAlbero(Albero albero, int idPadre, boolean rispostaPadre, List<Persona> personeCorrente, List<String> domandeUsate) {
+        if (personeCorrente.isEmpty()) {
+            // ramo morto: nessuna persona rimasta
+            return;
+        }
+
+        if (personeCorrente.size() == 1) {
+            // unica persona rimasta
+            albero.inserisciPersona(idPadre, personeCorrente.getFirst(), rispostaPadre);
+            return;
+        }
+
+        // scegliamo una domanda random tra quelle non ancora usate
+        List<String> disponibili = new ArrayList<>();
+        for (String d : domande) {
+            if (!domandeUsate.contains(d)) disponibili.add(d);
+        }
+
+        Collections.shuffle(disponibili);
+        String domandaScelta = disponibili.getFirst();
+
+
+        List<Persona> tutteSI = opzioni.get(domandaScelta + "S");
+        List<Persona> tutteNO = opzioni.get(domandaScelta + "N");
+
+        List<Persona> filtroSI = interseca(personeCorrente, tutteSI);
+        List<Persona> filtroNO = interseca(personeCorrente, tutteNO);
+
+        int idNuovo = albero.inserisciDomanda(idPadre, domandaScelta, rispostaPadre);
+
+        // aggiungo la domandascelta alle domande usate cosi facendo si aggiorna la lista di domandeusate
+        List<String> nuoveUsate = new ArrayList<>(domandeUsate);
+        nuoveUsate.add(domandaScelta);
+
+        // richiamo la funzione (effetto ricorsione(
+        costruisciSottoAlbero(albero, idNuovo, true,  filtroSI, new ArrayList<>(nuoveUsate));
+        costruisciSottoAlbero(albero, idNuovo, false, filtroNO, new ArrayList<>(nuoveUsate));
+    }
+
+    //intersezione tra 2 liste di persone (in questo caso tra le persone rimaste nel nodo e le persone tutte si/no)
+    private List<Persona> interseca(List<Persona> a, List<Persona> b) {
+        List<Persona> risultato = new ArrayList<>();
+        for (Persona personaA : a)
+            for (Persona personaB : b)
+                if (personaA.getNome().equals(personaB.getNome())) {
+                    risultato.add(personaA);
+                    break;
+                }
+        return risultato;
     }
 
     private void inizializza() {
