@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.*;
 import java.util.List;
@@ -21,7 +22,7 @@ public class SchermataGioco extends JFrame {
 
     private Nodo scelta;
 
-    public SchermataGioco(List<Persona> persone) {
+    public SchermataGioco(List<Persona> persone, Albero albero) {
         setTitle("IndovinaChi");
         setLocationRelativeTo(null);
         setExtendedState(MAXIMIZED_BOTH);
@@ -105,14 +106,15 @@ public class SchermataGioco extends JFrame {
         no.setFocusPainted(false);
 
         //vado a mostrare la prima domanda
-//        scelta = albero.getRoot();
-//        aggiornadomanda();
-//
-//        si.addActionListener(e -> avanza(true));
-//        no.addActionListener(e -> avanza(false));
-//
-//        pannelloBottoni.add(si);
-//        pannelloBottoni.add(no);
+
+        scelta = albero.getRoot();
+        aggiornadomanda();
+
+        si.addActionListener(e -> avanza(true));
+        no.addActionListener(e -> avanza(false));
+
+        pannelloBottoni.add(si);
+        pannelloBottoni.add(no);
 
         pannelloDomanda.add(titoloLabel);
         pannelloDomanda.add(domande);

@@ -29,7 +29,13 @@ void main() {
     persone.add(new Persona("mallory", ColoriCrapa.CASTANO, ColoriÖch.BLU, ColoriPelle.BIANCO, false, false, true, false, false, false,"img/mallory.png"));
     persone.add(new Persona("zachary", ColoriCrapa.ROSSO, ColoriÖch.VERDE, ColoriPelle.BIANCO, false, true, true, false, false, false,"img/zachary.png"));
 
-    SchermataGioco sg = new SchermataGioco(persone);
+
+
+
+    Bot bot = new Bot(persone);
+    Albero albero = bot.creaAlbero();
+
+    SchermataGioco sg = new SchermataGioco(persone, albero);
 
 //    Albero alb = null;
 //    try {
