@@ -71,6 +71,27 @@ public class Bot {
         List<Persona> filtroSI = interseca(personeCorrente, tutteSI);
         List<Persona> filtroNO = interseca(personeCorrente, tutteNO);
 
+        int i = 1;
+        while ((filtroSI.size() == tutteSI.size() || filtroNO.size() == tutteNO.size() || filtroSI.isEmpty() || filtroNO.isEmpty()) && i < disponibili.size()) {
+            domandaScelta = disponibili.get(i);
+            tutteSI = opzioni.get(domandaScelta + "S");
+            tutteNO = opzioni.get(domandaScelta + "N");
+            filtroSI = interseca(personeCorrente, tutteSI);
+            filtroNO = interseca(personeCorrente, tutteNO);
+            i++;
+        }
+
+        if ((filtroSI.isEmpty() || filtroNO.isEmpty())) {
+            for (String domanda : disponibili) {
+                domandaScelta = domanda;
+                tutteSI = opzioni.get(domanda + "S");
+                tutteNO = opzioni.get(domanda + "N");
+                filtroSI = interseca(personeCorrente, tutteSI);
+                filtroNO = interseca(personeCorrente, tutteNO);
+                if (!filtroSI.isEmpty() && !filtroNO.isEmpty()) break;
+            }
+        }
+
         int idNuovo = albero.inserisciDomanda(idPadre, domandaScelta, rispostaPadre);
 
         // aggiungo la domandascelta alle domande usate cosi facendo si aggiorna la lista di domandeusate
@@ -139,7 +160,7 @@ public class Bot {
         domande[11] = "ha gli occhi verdi?";
         domande[12] = "ha gli occhiali?";
         domande[13] = "ha i capelli lunghi?";
-        domande[14] = "ha la barba?";
+        domande[14] = "ha la barba o i baffi?";
         domande[15] = "ha il cappello?";
         domande[16] = "è pelato?";
 
@@ -171,7 +192,7 @@ public class Bot {
             case "ha gli occhi verdi?" -> p.getColoreOcchi() == ColoriÖch.VERDE;
             case "ha gli occhiali?" -> p.isOcchiali();
             case "ha i capelli lunghi?" -> p.isCapelliLunghi();
-            case "ha la barba?" -> p.isBarba();
+            case "ha la barba o i baffi?" -> p.isBarba();
             case "ha il cappello?" -> p.isCappello();
             case "è pelato?" -> p.isPelato();
             default -> throw new IllegalArgumentException("Domanda non riconosciuta: " + domanda);

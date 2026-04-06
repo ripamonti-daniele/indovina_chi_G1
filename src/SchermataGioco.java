@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.*;
 import java.util.List;
@@ -53,6 +52,7 @@ public class SchermataGioco extends JFrame {
             immagine.setIcon(persona.getImmagine(90, 110));
             immagine.setHorizontalAlignment(SwingConstants.CENTER);
             carta.add(immagine, BorderLayout.CENTER);
+            carta.setToolTipText(creaStringaToolTip(persona));
 
             cella.add(carta);
             pannelloGriglia.add(cella);
@@ -66,6 +66,7 @@ public class SchermataGioco extends JFrame {
                     carta.removeAll();
                     carta.revalidate();
                     carta.repaint();
+                    carta.setToolTipText(null);
                 }
             });
         }
@@ -201,5 +202,12 @@ public class SchermataGioco extends JFrame {
         carta.removeAll();
         carta.revalidate();
         carta.repaint();
+        carta.setToolTipText(null);
+    }
+
+    private String creaStringaToolTip(Persona p) {
+        String s = p.toString();
+        s = s.replaceAll("\n", "<br>");
+        return "<html>" + s + "</html>";
     }
 }

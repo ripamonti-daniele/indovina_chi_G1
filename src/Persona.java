@@ -167,14 +167,16 @@ public class Persona implements Serializable {
 
     @Override
     public String toString() {
-        //aggiungere i nuovi attributi
-        String s = "occhiali: ";
-        if (occhiali) s += "si";
-        else s += "no";
-        if (sesso) s += ", sesso: maschio";
-        else s += ", sesso: femmina";
-        if (capelliLunghi) s += ", capelli: lunghi";
-        else s += ", capelli : corti";
-        return "nome: " + nome + ", coloreCapelli: " + coloreCapelli + ", coloreOcchi: " + coloreOcchi + ", colorePelle: " + colorePelle + ", " + s;
+        String s = "caratteristiche " + nome + ":\n";
+        if (sesso) s += "maschio\n";
+        else s += "femmina\n";
+        s += "colore capelli: " + coloreCapelli + "\ncolore occhi: " + coloreOcchi + "\ncolore pelle: " + colorePelle + "\n";
+        if (occhiali) s += "ha gli occhiali\n";
+        if (capelliLunghi) s += "ha i capelli lunghi\n";
+        if (barba) s += "ha la barba o i baffi\n";
+        if (cappello) s += "ha il cappello\n";
+        if (pelato) s += "è peltato";
+
+        return s.toLowerCase();
     }
 }
