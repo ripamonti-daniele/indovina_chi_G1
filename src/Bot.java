@@ -1,22 +1,99 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Bot {
     private final Map<String, List<Persona>> opzioni = new HashMap<>();
     private final List<Persona> tutte;
-    private List<Persona> rimaste;
     private final String[] domande;
+
+    private Persona personaggioDaScoprire;
+
+    //utilizzo il nodoCorrente così che il bot possa fare le domande al giocatore
+    private Nodo nodoCorrente;
+    private Albero albero;
 
     public Bot(List<Persona> persone) {
         if (persone == null || persone.isEmpty()) throw new IllegalArgumentException("La lista non può essere null o vuota");
         this.tutte = persone;
-        this.rimaste = new ArrayList<>(persone);
         domande = new String[17];
         inizializza();
+    }
+
+    public Persona PersonaRandom(){
+        Random r = new Random();
+        personaggioDaScoprire = tutte.get(r.nextInt(tutte.size()));
+        return personaggioDaScoprire;
+    }
+
+    public Persona getPersonaggioDaScoprire(){
+        return personaggioDaScoprire;
+    }
+
+    public boolean rispostaSuPersonaggioDaScoprire(String domanda){
+        if(personaggioDaScoprire == null){
+            throw new IllegalArgumentException("il bot non ha scelto il personaggio");
+        }
+        return corrisponde(personaggioDaScoprire, domanda);
+    }
+
+    public boolean risposteSuPersonaSpecifica(String d, Persona p){
+        return corrisponde(p, d);
+    }
+
+    public String getDomandaCorrente(){
+        if(nodoCorrente == null){
+            return null;
+        }
+        return nodoCorrente.getDomanda();
+    }
+
+    //va avanti nell'albero in base alla risposta, se il bot indovina restituisce la persona
+    public Persona avanzaDentroAlbero(boolean r){
+        if(nodoCorrente == null || nodoCorrente.getDomanda() == null){
+            return null;
+        }
+
+        if(r){
+            nodoCorrente = nodoCorrente.getSi();
+        }else{
+            nodoCorrente = nodoCorrente.getNo();
+        }
+
+        if(nodoCorrente != null && nodoCorrente.getPersona() != null){
+            return nodoCorrente.getPersona();
+        }
+        return null;
+    }
+
+    public List<String> personeEliminate(boolean r){
+        Nodo PersonaScartata;
+
+        if(nodoCorrente == null){
+            return new ArrayList<>();
+        }
+        if(r){
+            PersonaScartata = nodoCorrente.getNo();
+        }else{
+            PersonaScartata = nodoCorrente.getSi();
+        }
+        return raccogliNomi(PersonaScartata);
+    }
+
+    private List<String> raccogliNomi(Nodo n) {
+        List<String> nomi = new ArrayList<>();
+        raccogliNomiRicorsivo(n, nomi);
+        return nomi;
+    }
+
+    private void raccogliNomiRicorsivo(Nodo n, List<String> nomi) {
+        if (n == null) {
+            return;
+        }
+        if (n.getPersona() != null) {
+            nomi.add(n.getPersona().getNome());
+            return;
+        }
+        raccogliNomiRicorsivo(n.getSi(), nomi);
+        raccogliNomiRicorsivo(n.getNo(), nomi);
     }
 
     public Albero creaAlbero() {
