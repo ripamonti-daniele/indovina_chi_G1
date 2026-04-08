@@ -189,14 +189,25 @@ public class Bot {
     //serve per controllare se la domanda appartiene a una categoria gia risolta
 
     private boolean categoriaGiaConfermata(String domanda, List<String> domandeConfermate) {
+        //questo array ci permette di eliminare tutte le domande simili a quella a cui abbiamo già risposto
+        //esempio: se il bot chiede se ha i capelli rossi e rispondo di si, non mi farà domande inerenti ai capelli
         String[] capelli = {"ha i capelli castani?", "ha i capelli neri?", "ha i capelli biondi?", "ha i capelli rossi?", "ha i capelli bianchi?"};
         String[] occhi   = {"ha gli occhi marroni?", "ha gli occhi blu?", "ha gli occhi verdi?"};
         String[] pelle   = {"ha la pelle bianca?", "ha la pelle nera?", "ha la pelle mulatta?"};
 
         String[] categoria = null;
-        for (String c : capelli) if (c.equals(domanda)) { categoria = capelli; break; }
-        if (categoria == null)
-            for (String c : occhi) if (c.equals(domanda)) { categoria = occhi; break; }
+        for (String c : capelli)
+            if (c.equals(domanda)) {
+                categoria = capelli; break;
+            }
+
+        if (categoria == null){
+            for (String c : occhi)
+                if (c.equals(domanda)) {
+                    categoria = occhi; break;
+                }
+        }
+
         if (categoria == null)
             for (String c : pelle) if (c.equals(domanda)) { categoria = pelle; break; }
 
