@@ -25,36 +25,55 @@ public class SchermataGioco extends JFrame {
         setTitle("IndovinaChi");
         setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         setLocationRelativeTo(null);
-        setExtendedState(MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setExtendedState(MAXIMIZED_BOTH);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setOpaque(false);
-        JLabel label = new JLabel(new ImageIcon("img/sfondo_indovina_chi.png"));
-        mainPanel.add(label, BorderLayout.CENTER);
-        setContentPane(mainPanel);
+        ImageIcon icona = new ImageIcon("img/sfondo_indovina_chi.png");
 
-        label.setHorizontalAlignment(JLabel.LEFT);
-        label.setVerticalAlignment(JLabel.CENTER);
-        label.setLayout(new BorderLayout());
+        JPanel panelSfondo = new JPanel(new BorderLayout()) {
+            private final Image image = icona.getImage();
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                int panelWidth = getWidth();
+                int panelHeight = getHeight();
+
+                int imgWidth = image.getWidth(null);
+                int imgHeight = image.getHeight(null);
+
+                // scala mantenendo proporzioni (cover style)
+                double scala = Math.max((double) panelWidth / imgWidth, (double) panelHeight / imgHeight);
+
+                int larghezzaScalata = (int) (imgWidth * scala);
+                int altezzaScalata = (int) (imgHeight * scala);
+
+                int x = (panelWidth - larghezzaScalata) / 2;
+                int y = (panelHeight - altezzaScalata) / 2;
+
+                g.drawImage(image, x, y, larghezzaScalata, altezzaScalata, this);
+            }
+        };
+
+        setContentPane(panelSfondo);
 
         JButton bottone1 = new JButtonCustom("Gioca in persona", new Color(34, 139, 34), new Color(60, 179, 60));
         JButton bottone2 = new JButtonCustom("Gioca contro il computer", new Color(30, 144, 255), new Color(100, 180, 255));
         JButton bottone3 = new JButtonCustom("Esci", new Color(220, 20, 60), new Color(255, 60, 80));
 
-        JPanel destra = new JPanel(new GridLayout(3, 1));
-        destra.setOpaque(false);
-        destra.add(bottone1);
-        destra.add(bottone2);
-        destra.add(bottone3);
-        destra.setPreferredSize(new Dimension(getWidth() - label.getIcon().getIconWidth(), getHeight() / 3));
+        JPanel btnPanel = new JPanel(new GridLayout(1, 3, 20, 0));
+        btnPanel.setOpaque(false);
+        btnPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 30, 40));
+        btnPanel.setPreferredSize(new Dimension(0, 180));
 
-        label.add(destra, BorderLayout.EAST);
-        setVisible(true);
+        btnPanel.add(bottone1);
+        btnPanel.add(bottone2);
+        btnPanel.add(bottone3);
 
-        bottone1.addActionListener(_ -> {
-            inizializzaInPersona();
-        });
+        panelSfondo.add(btnPanel, BorderLayout.SOUTH);
+
+        bottone1.addActionListener(_ -> inizializzaInPersona());
 
         bottone2.addActionListener(_ -> {
             getContentPane().removeAll();
@@ -64,6 +83,8 @@ public class SchermataGioco extends JFrame {
         });
 
         bottone3.addActionListener(_ -> dispose());
+
+        setVisible(true);
     }
 
     private void inizializzaInPersona() {
