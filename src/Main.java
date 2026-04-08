@@ -1,4 +1,6 @@
 void main() {
+    System.setProperty("sun.java2d.uiScale", "1"); //mantiene le immagini a qualità alta su tutti i monitor
+
     List<Persona> persone = new ArrayList<>();
     persone.add(new Persona("patrick", ColoriCrapa.CASTANO, ColoriÖch.MARRONE, ColoriPelle.BIANCO, false, true, true, true, false, false, "img/patrick.png"));
     persone.add(new Persona("sarah", ColoriCrapa.CASTANO, ColoriÖch.MARRONE, ColoriPelle.NERO, false, false, true, false, false, false,"img/sarah.png"));

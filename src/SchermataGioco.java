@@ -15,7 +15,7 @@ public class SchermataGioco extends JFrame {
     private JButton si;
     private JButton no;
 
-    private final List<Persona> persone;
+    private List<Persona> persone;
     private List<JPanel> carte = new ArrayList<>();
     private final Map<String, JPanel> cartaPerNome = new HashMap<>();
 
@@ -23,12 +23,57 @@ public class SchermataGioco extends JFrame {
 
     public SchermataGioco(List<Persona> persone, Albero albero) {
         setTitle("IndovinaChi");
+        setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         setLocationRelativeTo(null);
         setExtendedState(MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        getContentPane().setBackground(new Color(158, 26, 14));
-        setLayout(new BorderLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setOpaque(false);
+        JLabel label = new JLabel(new ImageIcon("img/sfondo_indovina_chi.png"));
+        mainPanel.add(label, BorderLayout.CENTER);
+        setContentPane(mainPanel);
+
+        label.setHorizontalAlignment(JLabel.LEFT);
+        label.setVerticalAlignment(JLabel.CENTER);
+        label.setLayout(new BorderLayout());
+
+        JButton bottone1 = new JButtonCustom("Gioca in persona", new Color(34, 139, 34), new Color(60, 179, 60));
+        JButton bottone2 = new JButtonCustom("Gioca contro il computer", new Color(30, 144, 255), new Color(100, 180, 255));
+        JButton bottone3 = new JButtonCustom("Esci", new Color(220, 20, 60), new Color(255, 60, 80));
+
+        JPanel destra = new JPanel(new GridLayout(3, 1));
+        destra.setOpaque(false);
+        destra.add(bottone1);
+        destra.add(bottone2);
+        destra.add(bottone3);
+        destra.setPreferredSize(new Dimension(getWidth() - label.getIcon().getIconWidth(), getHeight() / 3));
+
+        label.add(destra, BorderLayout.EAST);
+        setVisible(true);
+
+        bottone1.addActionListener(_ -> {
+            inizializzaInPersona();
+        });
+
+        bottone2.addActionListener(_ -> {
+            getContentPane().removeAll();
+            inizializzaBot(persone, albero);
+            revalidate();
+            repaint();
+        });
+
+        bottone3.addActionListener(_ -> dispose());
+    }
+
+    private void inizializzaInPersona() {
+
+    }
+
+    private void inizializzaBot(List<Persona> persone, Albero albero) {
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(new Color(158, 26, 14));
+        setContentPane(root);  // sostituisci il content pane
 
         //PARTE DELLE CARTE
         pannelloGriglia = new JPanel(new GridLayout(4, 7, 15, 15));
@@ -111,8 +156,8 @@ public class SchermataGioco extends JFrame {
         scelta = albero.getRoot();
         aggiornadomanda();
 
-        si.addActionListener(e -> avanza(true));
-        no.addActionListener(e -> avanza(false));
+        si.addActionListener(_ -> avanza(true));
+        no.addActionListener(_ -> avanza(false));
 
         pannelloBottoni.add(si);
         pannelloBottoni.add(no);
@@ -121,10 +166,8 @@ public class SchermataGioco extends JFrame {
         pannelloDomanda.add(domande);
         pannelloDomanda.add(pannelloBottoni);
 
-        add(pannelloGriglia, BorderLayout.CENTER);
-        add(pannelloDomanda, BorderLayout.EAST);
-
-        setVisible(true);
+        root.add(pannelloGriglia, BorderLayout.CENTER);
+        root.add(pannelloDomanda, BorderLayout.EAST);
     }
 
     //aggiorno il testo all'interno del pannello delle domande
