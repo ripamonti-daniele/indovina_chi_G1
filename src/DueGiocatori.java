@@ -59,4 +59,25 @@ public class DueGiocatori {
         botG1 = new Bot(persone);
         botG2 = new Bot(persone);
     }
+
+    public boolean tentaIndovinare(String nomePersona, int giocatore) {
+        if (giocatore == 1) return personaSegretaG2.getNome().equals(nomePersona.trim().toLowerCase());
+        if (giocatore == 2) return personaSegretaG1.getNome().equals(nomePersona.trim().toLowerCase());
+        throw new IllegalArgumentException("Giocatore non valido: " + giocatore);
+    }
+
+    public Persona rivelaSegreto(int giocatore) {
+        if (giocatore == 1) return personaSegretaG2;
+        if (giocatore == 2) return personaSegretaG1;
+        throw new IllegalArgumentException("Giocatore non valido: " + giocatore);
+    }
+
+    public Persona getPersonaSegretaG1() {
+        return personaSegretaG1;
+    }
+
+    public Persona getPersonaSegretaG2() {
+        return personaSegretaG2;
+    }
 }
+

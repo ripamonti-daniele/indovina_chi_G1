@@ -73,7 +73,8 @@ public class SchermataGioco extends JFrame {
 
         panelSfondo.add(btnPanel, BorderLayout.SOUTH);
 
-        bottone1.addActionListener(_ -> inizializzaInPersona());
+        //il trattino basso viene utilizzato quando il parametro non è utilizzato
+        bottone1.addActionListener(_ -> inizializzaInPersona(persone));
 
         bottone2.addActionListener(_ -> {
             getContentPane().removeAll();
@@ -87,9 +88,250 @@ public class SchermataGioco extends JFrame {
         setVisible(true);
     }
 
-    private void inizializzaInPersona() {
+    private void inizializzaInPersona(List<Persona> persone) {
+        this.persone = persone;
 
+        Persona personaSegretaG1 = mostraSceltaPersona(1, persone);
+        if (personaSegretaG1 == null) {
+            return;
+        }
+
+        Persona personaSegretaG2 = mostraSceltaPersona(2, persone);
+        if (personaSegretaG2 == null) {
+            return;
+        }
+
+        final int[] turno = {1};
+
+        JPanel pannelloPrincipale = new JPanel(new BorderLayout());
+        pannelloPrincipale.setBackground(new Color(158, 26, 14));
+        setContentPane(pannelloPrincipale);
+
+        JPanel colonnaG1 = new JPanel(new BorderLayout());
+        colonnaG1.setOpaque(false);
+        colonnaG1.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 3, new Color(60, 60, 60)));
+        JLabel labelG1 = new JLabel("Giocatore 1", SwingConstants.CENTER);
+        labelG1.setForeground(Color.WHITE);
+        colonnaG1.add(labelG1, BorderLayout.NORTH);
+        colonnaG1.add(creaGriglia(persone, turno, 1), BorderLayout.CENTER);
+
+        JPanel colonnaG2 = new JPanel(new BorderLayout());
+        colonnaG2.setOpaque(false);
+        JLabel labelG2 = new JLabel("Giocatore 2", SwingConstants.CENTER);
+        labelG2.setForeground(Color.WHITE);
+        colonnaG2.add(labelG2, BorderLayout.NORTH);
+        colonnaG2.add(creaGriglia(persone, turno, 2), BorderLayout.CENTER);
+
+        JPanel pannelloCentrale = new JPanel(new GridLayout(1, 2, 0, 0));
+        pannelloCentrale.setOpaque(false);
+        pannelloCentrale.add(colonnaG1);
+        pannelloCentrale.add(colonnaG2);
+
+        JPanel pannelloLaterale = new JPanel();
+        pannelloLaterale.setLayout(new BoxLayout(pannelloLaterale, BoxLayout.Y_AXIS));
+        pannelloLaterale.setBackground(new Color(180, 180, 180));
+        pannelloLaterale.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
+        pannelloLaterale.setPreferredSize(new Dimension(220, 0));
+
+        JLabel labelTurno = new JLabel("Turno: Giocatore 1");
+        labelTurno.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelTurno.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
+        JButton btnIndovina = new JButton("Tenta di indovinare!");
+        btnIndovina.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnIndovina.setBackground(new Color(46, 160, 67));
+        btnIndovina.setForeground(Color.WHITE);
+        btnIndovina.setFocusPainted(false);
+        btnIndovina.setMaximumSize(new Dimension(200, 40));
+
+        JButton btnSaltaTurno = new JButton("Salta turno");
+        btnSaltaTurno.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnSaltaTurno.setBackground(new Color(120, 120, 120));
+        btnSaltaTurno.setForeground(Color.WHITE);
+        btnSaltaTurno.setFocusPainted(false);
+        btnSaltaTurno.setMaximumSize(new Dimension(200, 40));
+
+        pannelloLaterale.add(labelTurno);
+        pannelloLaterale.add(btnIndovina);
+        pannelloLaterale.add(Box.createVerticalStrut(10));
+        pannelloLaterale.add(btnSaltaTurno);
+
+        pannelloPrincipale.add(pannelloCentrale, BorderLayout.CENTER);
+        pannelloPrincipale.add(pannelloLaterale, BorderLayout.EAST);
+
+        btnIndovina.addActionListener(_ -> {
+            int turnoCorrente = turno[0];
+
+            String input = JOptionPane.showInputDialog(
+                    this,
+                    "Giocatore " + turnoCorrente + ", inserisci il nome della persona:",
+                    "Tenta di indovinare",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (input == null) {
+                return;
+            }
+
+            Persona segreta;
+            if (turnoCorrente == 1) {
+                segreta = personaSegretaG2;
+            } else {
+                segreta = personaSegretaG1;
+            }
+
+            boolean haVinto = segreta.getNome().equals(input.trim().toLowerCase());
+
+            if (haVinto) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Giocatore " + turnoCorrente + " ha vinto!\nLa persona era: " + segreta.getNome(),
+                        "Hai vinto!",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+                btnIndovina.setEnabled(false);
+                btnSaltaTurno.setEnabled(false);
+            } else {
+                if (turnoCorrente == 1) {
+                    turno[0] = 2;
+                } else {
+                    turno[0] = 1;
+                }
+
+                labelTurno.setText("Turno: Giocatore " + turno[0]);
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Risposta sbagliata! Tocca al Giocatore " + turno[0],
+                        "Sbagliato!",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+        });
+
+        btnSaltaTurno.addActionListener(_ -> {
+            if (turno[0] == 1) {
+                turno[0] = 2;
+            } else {
+                turno[0] = 1;
+            }
+
+            labelTurno.setText("Turno: Giocatore " + turno[0]);
+        });
+
+        revalidate();
+        repaint();
     }
+
+    private Persona mostraSceltaPersona(int numeroGiocatore, List<Persona> persone) {
+        final Persona[] scelta = {null};
+
+        JPanel griglia = new JPanel(new GridLayout(4, 7, 8, 8));
+        griglia.setBackground(new Color(158, 26, 14));
+        griglia.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        for (Persona persona : persone) {
+            JPanel cella = new JPanel(new GridBagLayout());
+            cella.setOpaque(false);
+
+            JPanel carta = new JPanel(new BorderLayout());
+            carta.setBackground(new Color(210, 210, 210));
+            carta.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+            carta.setPreferredSize(new Dimension(80, 100));
+
+            JLabel immagine = new JLabel(persona.getImmagine(65, 80));
+            immagine.setHorizontalAlignment(SwingConstants.CENTER);
+            carta.add(immagine, BorderLayout.CENTER);
+            carta.setToolTipText(creaStringaToolTip(persona));
+
+            cella.add(carta);
+            griglia.add(cella);
+
+            carta.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    for (Component comp : griglia.getComponents()) {
+                        JPanel pannelloCella = (JPanel) comp;
+                        Component[] figli = pannelloCella.getComponents();
+                        if (figli.length > 0 && figli[0] instanceof JPanel) {
+                            JPanel cartaInterna = (JPanel) figli[0];
+                            cartaInterna.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+                            cartaInterna.setBackground(new Color(210, 210, 210));
+                        }
+                    }
+
+                    carta.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
+                    scelta[0] = persona;
+                }
+            });
+        }
+
+        while (scelta[0] == null) {
+            int risultato = JOptionPane.showConfirmDialog(
+                    this,
+                    griglia,
+                    "Giocatore " + numeroGiocatore + " - scegli la tua persona segreta",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+
+            if (risultato != JOptionPane.OK_OPTION) {
+                return null;
+            }
+
+            if (scelta[0] == null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Devi selezionare una persona prima di confermare.",
+                        "Attenzione",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+        }
+
+        return scelta[0];
+    }
+
+
+    private JPanel creaGriglia(List<Persona> persone, int[] turno, int mioNumero) {
+        JPanel griglia = new JPanel(new GridLayout(4, 7, 8, 8));
+        griglia.setOpaque(false);
+        griglia.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        for (Persona persona : persone) {
+            JPanel cella = new JPanel(new GridBagLayout());
+            cella.setOpaque(false);
+
+            JPanel carta = new JPanel(new BorderLayout());
+            carta.setBackground(new Color(210, 210, 210));
+            carta.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+            carta.setPreferredSize(new Dimension(80, 100));
+
+            JLabel immagine = new JLabel(persona.getImmagine(65, 80));
+            immagine.setHorizontalAlignment(SwingConstants.CENTER);
+            carta.add(immagine, BorderLayout.CENTER);
+
+            cella.add(carta);
+            griglia.add(cella);
+
+            carta.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    // puoi oscurare solo nel tuo turno
+                    if (turno[0] != mioNumero) return;
+
+                    carta.setBackground(Color.YELLOW);
+                    carta.removeAll();
+                    carta.revalidate();
+                    carta.repaint();
+                }
+            });
+        }
+
+        return griglia;
+    }
+
+
 
     private void inizializzaBot(List<Persona> persone, Albero albero) {
         JPanel root = new JPanel(new BorderLayout());
