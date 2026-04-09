@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class DueGiocatori {
     private List<Persona> personeGiocatore1;
@@ -7,6 +8,9 @@ public class DueGiocatori {
 
     private Persona personaSegretaG1; // la persona che deve indovinare il giocatore 2
     private Persona personaSegretaG2; // la persona che deve indovinare il giocatore 1
+
+    private Bot botG1;
+    private Bot botG2;
 
     private final List<String> domandePossibili;
 
@@ -36,4 +40,23 @@ public class DueGiocatori {
         domandePossibili.add("è pelato?");
     }
 
+    private void inizializza(List<Persona> persone) {
+        // creo le liste per i due giocatori (copie separate)
+        personeGiocatore1 = new ArrayList<>();
+        personeGiocatore2 = new ArrayList<>();
+
+        for (Persona p : persone) {
+            personeGiocatore1.add(new Persona(p));
+            personeGiocatore2.add(new Persona(p));
+        }
+
+        // scelgo le persone segrete random
+        Random rand = new Random();
+        personaSegretaG1 = persone.get(rand.nextInt(persone.size()));
+        personaSegretaG2 = persone.get(rand.nextInt(persone.size()));
+
+        // creo i bot per aiutare con le domande
+        botG1 = new Bot(persone);
+        botG2 = new Bot(persone);
+    }
 }
