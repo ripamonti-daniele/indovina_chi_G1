@@ -16,6 +16,24 @@ public class DueGiocatori {
         inizializza(persone);
     }
 
-
+    private void inizializzaDomande() {
+        domandePossibili.add("è maschio?");
+        domandePossibili.add("ha i capelli castani?");
+        domandePossibili.add("ha i capelli neri?");
+        domandePossibili.add("ha i capelli biondi?");
+        domandePossibili.add("ha i capelli rossi?");
+        domandePossibili.add("ha i capelli bianchi?");
+        domandePossibili.add("ha la pelle bianca?");
+        domandePossibili.add("ha la pelle nera?");
+        domandePossibili.add("ha la pelle mulatta?");
+        domandePossibili.add("ha gli occhi marroni?");
+        domandePossibili.add("ha gli occhi blu?");
+        domandePossibili.add("ha gli occhi verdi?");
+        domandePossibili.add("ha gli occhiali?");
+        domandePossibili.add("ha i capelli lunghi?");
+        domandePossibili.add("ha la barba o i baffi?");
+        domandePossibili.add("ha il cappello?");
+        domandePossibili.add("è pelato?");
+    }
 
 }
