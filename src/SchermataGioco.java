@@ -101,12 +101,15 @@ public class SchermataGioco extends JFrame {
             return;
         }
 
+        //array per tenere conto del turno
         final int[] turno = {1};
+
 
         JPanel pannelloPrincipale = new JPanel(new BorderLayout());
         pannelloPrincipale.setBackground(new Color(158, 26, 14));
         setContentPane(pannelloPrincipale);
 
+        //colonna sinistra
         JPanel colonnaG1 = new JPanel(new BorderLayout());
         colonnaG1.setOpaque(false);
         colonnaG1.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 3, new Color(60, 60, 60)));
@@ -115,6 +118,7 @@ public class SchermataGioco extends JFrame {
         colonnaG1.add(labelG1, BorderLayout.NORTH);
         colonnaG1.add(creaGriglia(persone, turno, 1), BorderLayout.CENTER);
 
+        //colonna destra
         JPanel colonnaG2 = new JPanel(new BorderLayout());
         colonnaG2.setOpaque(false);
         JLabel labelG2 = new JLabel("Giocatore 2", SwingConstants.CENTER);
@@ -127,6 +131,7 @@ public class SchermataGioco extends JFrame {
         pannelloCentrale.add(colonnaG1);
         pannelloCentrale.add(colonnaG2);
 
+        //pannello per cambiare turno e risposte
         JPanel pannelloLaterale = new JPanel();
         pannelloLaterale.setLayout(new BoxLayout(pannelloLaterale, BoxLayout.Y_AXIS));
         pannelloLaterale.setBackground(new Color(180, 180, 180));
@@ -144,7 +149,7 @@ public class SchermataGioco extends JFrame {
         btnIndovina.setFocusPainted(false);
         btnIndovina.setMaximumSize(new Dimension(200, 40));
 
-        JButton btnSaltaTurno = new JButton("Salta turno");
+        JButton btnSaltaTurno = new JButton("Cambia turno");
         btnSaltaTurno.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnSaltaTurno.setBackground(new Color(120, 120, 120));
         btnSaltaTurno.setForeground(Color.WHITE);
@@ -159,11 +164,13 @@ public class SchermataGioco extends JFrame {
         pannelloPrincipale.add(pannelloCentrale, BorderLayout.CENTER);
         pannelloPrincipale.add(pannelloLaterale, BorderLayout.EAST);
 
+        //funzione anonima che viene chiamata quando viene schiacciato il bottone che ci permette di creare
+        //una finestra di dialogo per indovinare il personaggio scelto dall'avversario
         btnIndovina.addActionListener(_ -> {
             int turnoCorrente = turno[0];
 
             String input = JOptionPane.showInputDialog(
-                    this,
+                    this, //intende che si riferisce a questo elemento
                     "Giocatore " + turnoCorrente + ", inserisci il nome della persona:",
                     "Tenta di indovinare",
                     JOptionPane.QUESTION_MESSAGE
@@ -173,6 +180,7 @@ public class SchermataGioco extends JFrame {
                 return;
             }
 
+            //confronto le due persone se quella inserita è uguale a quella da indovinare
             Persona segreta;
             if (turnoCorrente == 1) {
                 segreta = personaSegretaG2;
@@ -192,6 +200,7 @@ public class SchermataGioco extends JFrame {
                 btnIndovina.setEnabled(false);
                 btnSaltaTurno.setEnabled(false);
             } else {
+                //se non ha indovinato cambia il turno
                 if (turnoCorrente == 1) {
                     turno[0] = 2;
                 } else {
@@ -209,6 +218,7 @@ public class SchermataGioco extends JFrame {
             }
         });
 
+        //modifica l'array con il turno dell'avversario
         btnSaltaTurno.addActionListener(_ -> {
             if (turno[0] == 1) {
                 turno[0] = 2;
@@ -224,6 +234,7 @@ public class SchermataGioco extends JFrame {
     }
 
     private Persona mostraSceltaPersona(int numeroGiocatore, List<Persona> persone) {
+        //dato che abbiamo classi anonime (addMouseListener), che non possono modificare le variabili locali normali, le bisogna mettere final
         final Persona[] scelta = {null};
 
         JPanel griglia = new JPanel(new GridLayout(4, 7, 8, 8));
