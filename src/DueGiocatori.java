@@ -91,8 +91,8 @@ public class DueGiocatori {
     public List<String> getDomandePossibili() {
         return new ArrayList<>(domandePossibili);
     }
-}
 
+}
 
 
 
