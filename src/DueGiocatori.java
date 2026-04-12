@@ -9,38 +9,11 @@ public class DueGiocatori {
     private Persona personaSegretaG1; // la persona che deve indovinare il giocatore 2
     private Persona personaSegretaG2; // la persona che deve indovinare il giocatore 1
 
-    private Bot botG1;
-    private Bot botG2;
-
-    private List<String> domandePossibili;
-
-    public DueGiocatori(List<Persona> persone) {
-        domandePossibili = new ArrayList<>();
-        inizializzaDomande();
-        inizializza(persone);
+    public DueGiocatori(List<Persona> persone, Persona segretaG1, Persona segretaG2) {
+        inizializza(persone, segretaG1, segretaG2);
     }
 
-    private void inizializzaDomande() {
-        domandePossibili.add("è maschio?");
-        domandePossibili.add("ha i capelli castani?");
-        domandePossibili.add("ha i capelli neri?");
-        domandePossibili.add("ha i capelli biondi?");
-        domandePossibili.add("ha i capelli rossi?");
-        domandePossibili.add("ha i capelli bianchi?");
-        domandePossibili.add("ha la pelle bianca?");
-        domandePossibili.add("ha la pelle nera?");
-        domandePossibili.add("ha la pelle mulatta?");
-        domandePossibili.add("ha gli occhi marroni?");
-        domandePossibili.add("ha gli occhi blu?");
-        domandePossibili.add("ha gli occhi verdi?");
-        domandePossibili.add("ha gli occhiali?");
-        domandePossibili.add("ha i capelli lunghi?");
-        domandePossibili.add("ha la barba o i baffi?");
-        domandePossibili.add("ha il cappello?");
-        domandePossibili.add("è pelato?");
-    }
-
-    private void inizializza(List<Persona> persone) {
+    private void inizializza(List<Persona> persone, Persona segretaG1, Persona segretaG2) {
         // creo le liste per i due giocatori (copie separate)
         personeGiocatore1 = new ArrayList<>();
         personeGiocatore2 = new ArrayList<>();
@@ -50,34 +23,9 @@ public class DueGiocatori {
             personeGiocatore2.add(new Persona(p));
         }
 
-        // scelgo le persone segrete random
-        Random rand = new Random();
-        personaSegretaG1 = persone.get(rand.nextInt(persone.size()));
-        personaSegretaG2 = persone.get(rand.nextInt(persone.size()));
-
-        // creo i bot per aiutare con le domande
-        botG1 = new Bot(persone);
-        botG2 = new Bot(persone);
-    }
-
-    public boolean tentaIndovinare(String nomePersona, int giocatore) {
-        if (giocatore == 1) return personaSegretaG2.getNome().equals(nomePersona.trim().toLowerCase());
-        if (giocatore == 2) return personaSegretaG1.getNome().equals(nomePersona.trim().toLowerCase());
-        throw new IllegalArgumentException("Giocatore non valido: " + giocatore);
-    }
-
-    public Persona rivelaSegreto(int giocatore) {
-        if (giocatore == 1) return personaSegretaG2;
-        if (giocatore == 2) return personaSegretaG1;
-        throw new IllegalArgumentException("Giocatore non valido: " + giocatore);
-    }
-
-    public Persona getPersonaSegretaG1() {
-        return personaSegretaG1;
-    }
-
-    public Persona getPersonaSegretaG2() {
-        return personaSegretaG2;
+        // imposto le persone segrete scelte dai giocatori
+        this.personaSegretaG1 = segretaG1;
+        this.personaSegretaG2 = segretaG2;
     }
 
     public List<Persona> getPersoneGiocatore1() {
@@ -88,35 +36,14 @@ public class DueGiocatori {
         return new ArrayList<>(personeGiocatore2);
     }
 
-    public List<String> getDomandePossibili() {
-        return new ArrayList<>(domandePossibili);
+    public Persona getPersonaSegretaG1() {
+        return personaSegretaG1;
     }
 
-    public boolean faiDomanda(int giocatore, String domanda) {
-        Bot botCorrente;
-        Persona personaSegreta;
-        List<Persona> personeCorrente;
-
-        if (giocatore == 1) {
-            botCorrente = botG1;
-            personaSegreta = personaSegretaG2; // G1 chiede su G2
-            personeCorrente = personeGiocatore1;
-        } else if (giocatore == 2) {
-            botCorrente = botG2;
-            personaSegreta = personaSegretaG1; // G2 chiede su G1
-            personeCorrente = personeGiocatore2;
-        } else {
-            throw new IllegalArgumentException("Giocatore non valido: " + giocatore);
-        }
-
-        boolean risposta = botCorrente.rispostaSuPersonaSpecifica(domanda, personaSegreta);
-
-        eliminaPersonePerRisposta(personeCorrente, domanda, risposta, botCorrente);
-
-        return risposta;
+    public Persona getPersonaSegretaG2() {
+        return personaSegretaG2;
     }
+
 }
-
-
 
 
