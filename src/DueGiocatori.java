@@ -12,7 +12,7 @@ public class DueGiocatori {
     private Bot botG1;
     private Bot botG2;
 
-    private final List<String> domandePossibili;
+    private List<String> domandePossibili;
 
     public DueGiocatori(List<Persona> persone) {
         domandePossibili = new ArrayList<>();
@@ -79,5 +79,20 @@ public class DueGiocatori {
     public Persona getPersonaSegretaG2() {
         return personaSegretaG2;
     }
+
+    public List<Persona> getPersoneGiocatore1() {
+        return new ArrayList<>(personeGiocatore1);
+    }
+
+    public List<Persona> getPersoneGiocatore2() {
+        return new ArrayList<>(personeGiocatore2);
+    }
+
+    }
+
+    public List<String> getDomandePossibili() {
+        return new ArrayList<>(domandePossibili);
+    }
+
 }
 
