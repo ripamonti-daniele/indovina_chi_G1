@@ -88,11 +88,12 @@ public class DueGiocatori {
         return new ArrayList<>(personeGiocatore2);
     }
 
-    }
-
     public List<String> getDomandePossibili() {
         return new ArrayList<>(domandePossibili);
     }
-
 }
+
+
+
+
 
