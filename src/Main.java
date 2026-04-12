@@ -34,7 +34,7 @@ void main() {
     Bot bot = new Bot(persone);
     Albero albero = bot.creaAlbero();
 
-    SchermataGioco scg = new SchermataGioco(persone, albero);
+    SchermataGioco scg = new SchermataGioco(persone, albero, bot.getDomande());
 
 //    Albero alb = null;
 //    try {

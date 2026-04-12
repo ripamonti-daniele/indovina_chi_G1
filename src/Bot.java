@@ -18,6 +18,10 @@ public class Bot {
         inizializza();
     }
 
+    public String[] getDomande() {
+        return domande.clone();
+    }
+
     public Persona PersonaRandom(){
         Random r = new Random();
         personaggioDaScoprire = tutte.get(r.nextInt(tutte.size()));

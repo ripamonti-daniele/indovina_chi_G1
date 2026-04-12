@@ -17,11 +17,14 @@ public class SchermataGioco extends JFrame {
 
     private List<Persona> persone;
     private List<JPanel> carte = new ArrayList<>();
-    private final Map<String, JPanel> cartaPerNome = new HashMap<>();
+
+    private String[] domandePossibili;
 
     private Nodo scelta;
 
-    public SchermataGioco(List<Persona> persone, Albero albero) {
+    public SchermataGioco(List<Persona> persone, Albero albero, String[] domandePossibili) {
+        if (domandePossibili == null || domandePossibili.length == 0) throw new IllegalArgumentException("Le domande non possono essere null o vuote");
+        this.domandePossibili = domandePossibili;
         setTitle("IndovinaChi");
         setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         setLocationRelativeTo(null);
@@ -76,12 +79,7 @@ public class SchermataGioco extends JFrame {
         //il trattino basso viene utilizzato quando il parametro non è utilizzato
         bottone1.addActionListener(_ -> inizializzaInPersona(persone));
 
-        bottone2.addActionListener(_ -> {
-            getContentPane().removeAll();
-            inizializzaBot(persone, albero);
-            revalidate();
-            repaint();
-        });
+        bottone2.addActionListener(_ -> inizializzaBot(persone, albero));
 
         bottone3.addActionListener(_ -> dispose());
 
@@ -116,7 +114,7 @@ public class SchermataGioco extends JFrame {
         JLabel labelG1 = new JLabel("Giocatore 1", SwingConstants.CENTER);
         labelG1.setForeground(Color.WHITE);
         colonnaG1.add(labelG1, BorderLayout.NORTH);
-        colonnaG1.add(creaGriglia(persone, turno, 1), BorderLayout.CENTER);
+        colonnaG1.add(creaGriglia(persone, turno, 1, null), BorderLayout.CENTER);
 
         //colonna destra
         JPanel colonnaG2 = new JPanel(new BorderLayout());
@@ -124,7 +122,7 @@ public class SchermataGioco extends JFrame {
         JLabel labelG2 = new JLabel("Giocatore 2", SwingConstants.CENTER);
         labelG2.setForeground(Color.WHITE);
         colonnaG2.add(labelG2, BorderLayout.NORTH);
-        colonnaG2.add(creaGriglia(persone, turno, 2), BorderLayout.CENTER);
+        colonnaG2.add(creaGriglia(persone, turno, 2, null), BorderLayout.CENTER);
 
         JPanel pannelloCentrale = new JPanel(new GridLayout(1, 2, 0, 0));
         pannelloCentrale.setOpaque(false);
@@ -192,10 +190,10 @@ public class SchermataGioco extends JFrame {
 
             if (haVinto) {
                 JOptionPane.showMessageDialog(
-                        this,
-                        "Giocatore " + turnoCorrente + " ha vinto!\nLa persona era: " + segreta.getNome(),
-                        "Hai vinto!",
-                        JOptionPane.INFORMATION_MESSAGE
+                    this,
+                    "Giocatore " + turnoCorrente + " ha vinto!\nLa persona era: " + segreta.getNome(),
+                    "Hai vinto!",
+                    JOptionPane.INFORMATION_MESSAGE
                 );
                 btnIndovina.setEnabled(false);
                 btnSaltaTurno.setEnabled(false);
@@ -210,10 +208,10 @@ public class SchermataGioco extends JFrame {
                 labelTurno.setText("Turno: Giocatore " + turno[0]);
 
                 JOptionPane.showMessageDialog(
-                        this,
-                        "Risposta sbagliata! Tocca al Giocatore " + turno[0],
-                        "Sbagliato!",
-                        JOptionPane.WARNING_MESSAGE
+                    this,
+                    "Risposta sbagliata! Tocca al Giocatore " + turno[0],
+                    "Sbagliato!",
+                    JOptionPane.WARNING_MESSAGE
                 );
             }
         });
@@ -279,11 +277,11 @@ public class SchermataGioco extends JFrame {
 
         while (scelta[0] == null) {
             int risultato = JOptionPane.showConfirmDialog(
-                    this,
-                    griglia,
-                    "Giocatore " + numeroGiocatore + " - scegli la tua persona segreta",
-                    JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.PLAIN_MESSAGE
+                this,
+                griglia,
+                "Giocatore " + numeroGiocatore + " - scegli la tua persona segreta",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
             );
 
             if (risultato != JOptionPane.OK_OPTION) {
@@ -292,10 +290,10 @@ public class SchermataGioco extends JFrame {
 
             if (scelta[0] == null) {
                 JOptionPane.showMessageDialog(
-                        this,
-                        "Devi selezionare una persona prima di confermare.",
-                        "Attenzione",
-                        JOptionPane.WARNING_MESSAGE
+                    this,
+                    "Devi selezionare una persona prima di confermare.",
+                    "Attenzione",
+                    JOptionPane.WARNING_MESSAGE
                 );
             }
         }
@@ -304,7 +302,7 @@ public class SchermataGioco extends JFrame {
     }
 
 
-    private JPanel creaGriglia(List<Persona> persone, int[] turno, int mioNumero) {
+    private JPanel creaGriglia(List<Persona> persone, int[] turno, int mioNumero, Map<String, JPanel> cartaPerNome) {
         JPanel griglia = new JPanel(new GridLayout(4, 7, 8, 8));
         griglia.setOpaque(false);
         griglia.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -322,15 +320,15 @@ public class SchermataGioco extends JFrame {
             immagine.setHorizontalAlignment(SwingConstants.CENTER);
             carta.add(immagine, BorderLayout.CENTER);
 
+            if (cartaPerNome != null) cartaPerNome.put(persona.getNome(), carta);
+
             cella.add(carta);
             griglia.add(cella);
 
             carta.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
-                    // puoi oscurare solo nel tuo turno
-                    if (turno[0] != mioNumero) return;
-
+                    if (turno[0] != mioNumero || mioNumero == -1) return;
                     carta.setBackground(Color.YELLOW);
                     carta.removeAll();
                     carta.revalidate();
@@ -342,53 +340,26 @@ public class SchermataGioco extends JFrame {
         return griglia;
     }
 
-
-
     private void inizializzaBot(List<Persona> persone, Albero albero) {
+        Persona personaSegreta = mostraSceltaPersona(1, persone);
+        if (personaSegreta == null) return;
+
+        getContentPane().removeAll();
         JPanel root = new JPanel(new BorderLayout());
         root.setBackground(new Color(158, 26, 14));
         setContentPane(root);  // sostituisci il content pane
 
-        //PARTE DELLE CARTE
+        //parte giocatore (sinistra)
         pannelloGriglia = new JPanel(new GridLayout(4, 7, 15, 15));
         pannelloGriglia.setOpaque(false);
         pannelloGriglia.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
+        //parte del bot (destra)
+        JPanel pannelloGrigliaBot = new JPanel(new GridLayout(4, 7, 15, 15));
+        pannelloGrigliaBot.setOpaque(false);
+        pannelloGrigliaBot.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
         this.persone = persone;
-
-        for (Persona persona : persone) {
-            //mostra il rosso tra le carte
-            JPanel cella = new JPanel(new GridBagLayout());
-            cella.setOpaque(false);
-
-            // pannello carta grigio con bordo
-            JPanel carta = new JPanel(new BorderLayout(0, 4));
-            carta.setBackground(new Color(210, 210, 210));
-            carta.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-            carta.setPreferredSize(new Dimension(110, 140));
-
-            JLabel immagine = new JLabel();
-            immagine.setIcon(persona.getImmagine(90, 110));
-            immagine.setHorizontalAlignment(SwingConstants.CENTER);
-            carta.add(immagine, BorderLayout.CENTER);
-            carta.setToolTipText(creaStringaToolTip(persona));
-
-            cella.add(carta);
-            pannelloGriglia.add(cella);
-            carte.add(cella);
-            cartaPerNome.put(persona.getNome(), carta);
-
-            carta.addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mouseClicked(java.awt.event.MouseEvent e) {
-                    carta.setBackground(Color.YELLOW);
-                    carta.removeAll();
-                    carta.revalidate();
-                    carta.repaint();
-                    carta.setToolTipText(null);
-                }
-            });
-        }
 
         //PARTE DOMANDE E RISPOSTE
         pannelloDomanda = new JPanel();
@@ -430,22 +401,69 @@ public class SchermataGioco extends JFrame {
         scelta = albero.getRoot();
         aggiornadomanda();
 
-        si.addActionListener(_ -> avanza(true));
-        no.addActionListener(_ -> avanza(false));
-
         pannelloBottoni.add(si);
         pannelloBottoni.add(no);
+        pannelloBottoni.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
         pannelloDomanda.add(titoloLabel);
         pannelloDomanda.add(domande);
+
+        pannelloDomanda.add(Box.createVerticalGlue());
+        JLabel labelSegreta = new JLabel("La tua persona segreta:");
+        labelSegreta.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelSegreta.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+
+        JPanel cartaSegreta = new JPanel(new BorderLayout(0, 4));
+        cartaSegreta.setBackground(new Color(210, 210, 210));
+        cartaSegreta.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
+        cartaSegreta.setMaximumSize(new Dimension(110, 150));
+        cartaSegreta.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel imgSegreta = new JLabel(personaSegreta.getImmagine(90, 110));
+        imgSegreta.setHorizontalAlignment(SwingConstants.CENTER);
+        cartaSegreta.add(imgSegreta, BorderLayout.CENTER);
+
+        pannelloDomanda.add(labelSegreta);
+        pannelloDomanda.add(cartaSegreta);
         pannelloDomanda.add(pannelloBottoni);
 
-        root.add(pannelloGriglia, BorderLayout.CENTER);
+        int[] turno = {1};
+        Map<String, JPanel> cartaPerNome = new HashMap<>();
+        Map<String, JPanel> cartaPerNomeBot = new HashMap<>();
+
+        si.addActionListener(_ -> avanza(true, cartaPerNomeBot));
+        no.addActionListener(_ -> avanza(false, cartaPerNomeBot));
+
+        JPanel colonnaGiocatore = new JPanel(new BorderLayout());
+        colonnaGiocatore.setOpaque(false);
+        colonnaGiocatore.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 3, new Color(60, 60, 60)));
+        JLabel labelG1 = new JLabel("Giocatore", SwingConstants.CENTER);
+        labelG1.setForeground(Color.WHITE);
+        colonnaGiocatore.add(labelG1, BorderLayout.NORTH);
+        colonnaGiocatore.add(creaGriglia(persone, turno, 1, cartaPerNome), BorderLayout.CENTER);
+
+        //colonna destra
+        JPanel colonnaBot = new JPanel(new BorderLayout());
+        colonnaBot.setOpaque(false);
+        JLabel labelG2 = new JLabel("Bot", SwingConstants.CENTER);
+        labelG2.setForeground(Color.WHITE);
+        colonnaBot.add(labelG2, BorderLayout.NORTH);
+        colonnaBot.add(creaGriglia(persone, turno, -1, cartaPerNomeBot), BorderLayout.CENTER);
+
+        JPanel pannelloCentrale = new JPanel(new GridLayout(1, 2, 0, 0));
+        pannelloCentrale.setOpaque(false);
+        pannelloCentrale.add(colonnaGiocatore);
+        pannelloCentrale.add(colonnaBot);
+
+        root.add(pannelloCentrale, BorderLayout.CENTER);
         root.add(pannelloDomanda, BorderLayout.EAST);
+
+        revalidate();
+        repaint();
     }
 
     //aggiorno il testo all'interno del pannello delle domande
-    private void aggiornadomanda(){
+    private void aggiornadomanda() {
         if(scelta != null){
             if(scelta.getDomanda() != null){
                 domande.setText(scelta.getDomanda());
@@ -455,7 +473,7 @@ public class SchermataGioco extends JFrame {
         }
     }
 
-    private void avanza(boolean risposta) {
+    private void avanza(boolean risposta, Map<String, JPanel> cartaPerNome) {
         if (scelta == null || scelta.getDomanda() == null) return;
 
         // raccoglie le persone raggiungibili dal ramo SCARTATO
@@ -469,7 +487,7 @@ public class SchermataGioco extends JFrame {
 
         // abbatte le carte corrispondenti
         for (String nome : daAbbattere) {
-            abbattiCarta(nome);
+            abbattiCarta(nome, cartaPerNome);
         }
 
         // avanza al nodo scelto
@@ -512,14 +530,16 @@ public class SchermataGioco extends JFrame {
         raccogliPersone(n.getNo(), nomi);
     }
 
-    private void abbattiCarta(String nome) {
+    private void abbattiCarta(String nome, Map<String, JPanel> cartaPerNome) {
         JPanel carta = cartaPerNome.get(nome);
         if (carta == null) return;
-        carta.setBackground(Color.YELLOW);
+        Dimension dim = carta.getPreferredSize();
         carta.removeAll();
+        carta.setBackground(Color.YELLOW);
+        carta.setPreferredSize(dim);
+        carta.setToolTipText(null);
         carta.revalidate();
         carta.repaint();
-        carta.setToolTipText(null);
     }
 
     private String creaStringaToolTip(Persona p) {
