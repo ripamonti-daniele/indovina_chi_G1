@@ -92,12 +92,6 @@ public class DueGiocatori {
         return new ArrayList<>(domandePossibili);
     }
 
-    // METODI DI GIOCO
-
-    // Fai una domanda sulla persona segreta dell'avversario
-    // giocatore: 1 o 2
-    // domanda: la domanda da fare
-    // ritorna: true se la risposta è SÌ, false se è NO
     public boolean faiDomanda(int giocatore, String domanda) {
         Bot botCorrente;
         Persona personaSegreta;
@@ -115,10 +109,8 @@ public class DueGiocatori {
             throw new IllegalArgumentException("Giocatore non valido: " + giocatore);
         }
 
-        // l'avversario risponde in base alla sua persona segreta
         boolean risposta = botCorrente.rispostaSuPersonaSpecifica(domanda, personaSegreta);
 
-        // elimino le persone che non corrispondono
         eliminaPersonePerRisposta(personeCorrente, domanda, risposta, botCorrente);
 
         return risposta;
