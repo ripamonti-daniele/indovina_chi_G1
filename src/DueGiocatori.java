@@ -44,6 +44,31 @@ public class DueGiocatori {
         return personaSegretaG2;
     }
 
+    public void eliminaPersona(int giocatore, String nomePersona) {
+        List<Persona> persone;
+
+        if (giocatore == 1) {
+            persone = personeGiocatore1;
+        } else if (giocatore == 2) {
+            persone = personeGiocatore2;
+        } else {
+            throw new IllegalArgumentException("Giocatore non valido: " + giocatore);
+        }
+
+        nomePersona = nomePersona.trim().toLowerCase();
+
+        Persona daRimuovere = null;
+        for (Persona p : persone) {
+            if (p.getNome().equals(nomePersona)) {
+                daRimuovere = p;
+            }
+        }
+
+        if (daRimuovere != null) {
+            persone.remove(daRimuovere);
+        }
+    }
+
 }
 
 
