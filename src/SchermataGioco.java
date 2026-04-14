@@ -248,27 +248,46 @@ public class SchermataGioco extends JFrame {
             int turnoCorrente = turno[0];
             int avversario = (turnoCorrente == 1) ? 2 : 1;
 
-            // mostra la finestra di risposta all'avversario
-            int ris = JOptionPane.showConfirmDialog(
-                    this,
-                    "Giocatore " + avversario + ", rispondi:\n\"" + domanda + "\"",
-                    "Domanda di Giocatore " + turnoCorrente,
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
+            // calcola la risposta corretta in base alla persona segreta dell'avversario
+            Persona segretaAvversario = (avversario == 1) ? personaSegretaG1 : personaSegretaG2;
+            boolean rispostaCorretta = rispondeDomanda(segretaAvversario, domanda);
 
-            // se l'avversario chiude la finestra senza rispondere non fa nulla
-            if (ris == JOptionPane.CLOSED_OPTION) return;
+            Boolean rispostaUtente = null;
 
-            // converte la scelta del dialogo in booleano
-            boolean rispostaBoolean = (ris == JOptionPane.YES_OPTION);
+            while (rispostaUtente == null || rispostaUtente != rispostaCorretta) {
+
+                int scelta = JOptionPane.showOptionDialog(
+                        this,
+                        "Giocatore " + avversario + ", rispondi alla domanda:\n\"" + domanda + "\"",
+                        "Rispondi",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new String[]{"Sì", "No"},
+                        "Sì"
+                );
+
+                if (scelta == JOptionPane.CLOSED_OPTION) return;
+
+                rispostaUtente = (scelta == 0); // 0 è Si, 1 è No
+
+                if (rispostaUtente != rispostaCorretta) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Risposta sbagliata! Devi rispondere correttamente.",
+                            "Errore",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
 
             // sceglie la mappa del giocatore che ha fatto la domanda
+            // è lui che deve abbattere le carte, non l'avversario
             Map<String, JPanel> cartaDaAggiornare = (turnoCorrente == 1) ? cartaPerNomeG1 : cartaPerNomeG2;
 
             // scorre tutte le persone e abbatte quelle che non corrispondono alla risposta
             for (Persona p : persone) {
-                if (rispondeDomanda(p, domanda) != rispostaBoolean) {
+                if (rispondeDomanda(p, domanda) != rispostaCorretta) {
                     abbattiCarta(p.getNome(), cartaDaAggiornare);
                 }
             }
