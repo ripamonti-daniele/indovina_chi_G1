@@ -193,6 +193,22 @@ public class SchermataGioco extends JFrame {
                 return;
             }
 
+            String nomeInput = input.trim().toLowerCase();
+
+            boolean esiste = false;
+            for (Persona p : persone) {
+                if (p.getNome().equals(nomeInput)) { esiste = true; break; }
+            }
+            if (!esiste) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "\"" + nomeInput + "\" non è un personaggio valido.\nControlla l'ortografia e riprova.",
+                        "Nome non valido",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
             //confronto le due persone se quella inserita è uguale a quella da indovinare
             Persona segreta;
             if (turnoCorrente == 1) {
@@ -223,6 +239,44 @@ public class SchermataGioco extends JFrame {
 
 
         revalidate();
+        btnFaiDomanda.addActionListener(_ -> {
+            // prende la domanda selezionata dalla combobox
+            String domanda = (String) comboDomande.getSelectedItem();
+            if (domanda == null) return;
+
+            // calcola chi deve rispondere (l'avversario)
+            int turnoCorrente = turno[0];
+            int avversario = (turnoCorrente == 1) ? 2 : 1;
+
+            // mostra la finestra di risposta all'avversario
+            int ris = JOptionPane.showConfirmDialog(
+                    this,
+                    "Giocatore " + avversario + ", rispondi:\n\"" + domanda + "\"",
+                    "Domanda di Giocatore " + turnoCorrente,
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            // se l'avversario chiude la finestra senza rispondere non fa nulla
+            if (ris == JOptionPane.CLOSED_OPTION) return;
+
+            // converte la scelta del dialogo in booleano
+            boolean rispostaBoolean = (ris == JOptionPane.YES_OPTION);
+
+            // sceglie la mappa del giocatore che ha fatto la domanda
+            Map<String, JPanel> cartaDaAggiornare = (turnoCorrente == 1) ? cartaPerNomeG1 : cartaPerNomeG2;
+
+            // scorre tutte le persone e abbatte quelle che non corrispondono alla risposta
+            for (Persona p : persone) {
+                if (rispondeDomanda(p, domanda) != rispostaBoolean) {
+                    abbattiCarta(p.getNome(), cartaDaAggiornare);
+                }
+            }
+
+            // passa il turno all'avversario
+            turno[0] = avversario;
+            labelTurno.setText("Turno: Giocatore " + turno[0]);
+        });
         repaint();
     }
 
@@ -530,5 +584,28 @@ public class SchermataGioco extends JFrame {
         String s = p.toString();
         s = s.replaceAll("\n", "<br>");
         return "<html>" + s + "</html>";
+    }
+
+    private boolean rispondeDomanda(Persona p, String domanda) {
+        return switch (domanda) {
+            case "è maschio?"              -> p.isSesso();
+            case "ha i capelli castani?"   -> p.getColoreCapelli() == ColoriCrapa.CASTANO;
+            case "ha i capelli neri?"      -> p.getColoreCapelli() == ColoriCrapa.NERO;
+            case "ha i capelli biondi?"    -> p.getColoreCapelli() == ColoriCrapa.BIONDO;
+            case "ha i capelli rossi?"     -> p.getColoreCapelli() == ColoriCrapa.ROSSO;
+            case "ha i capelli bianchi?"   -> p.getColoreCapelli() == ColoriCrapa.BIANCO;
+            case "ha la pelle bianca?"     -> p.getColorePelle() == ColoriPelle.BIANCO;
+            case "ha la pelle nera?"       -> p.getColorePelle() == ColoriPelle.NERO;
+            case "ha la pelle mulatta?"    -> p.getColorePelle() == ColoriPelle.MULATTO;
+            case "ha gli occhi marroni?"   -> p.getColoreOcchi() == ColoriOch.MARRONE;
+            case "ha gli occhi blu?"       -> p.getColoreOcchi() == ColoriOch.BLU;
+            case "ha gli occhi verdi?"     -> p.getColoreOcchi() == ColoriOch.VERDE;
+            case "ha gli occhiali?"        -> p.isOcchiali();
+            case "ha i capelli lunghi?"    -> p.isCapelliLunghi();
+            case "ha la barba o i baffi?"  -> p.isBarba();
+            case "ha il cappello?"         -> p.isCappello();
+            case "è pelato?"               -> p.isPelato();
+            default -> false;
+        };
     }
 }
