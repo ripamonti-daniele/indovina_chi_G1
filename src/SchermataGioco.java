@@ -266,13 +266,7 @@ public class SchermataGioco extends JFrame {
         }
 
         while (scelta[0] == null) {
-            int risultato = JOptionPane.showConfirmDialog(
-                this,
-                griglia,
-                "Giocatore " + numeroGiocatore + " - scegli la tua persona segreta",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-            );
+            int risultato = JOptionPane.showConfirmDialog(this, griglia, "Giocatore " + numeroGiocatore + " - scegli la tua persona segreta", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             if (risultato != JOptionPane.OK_OPTION) {
                 return null;

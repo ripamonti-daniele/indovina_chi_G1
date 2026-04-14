@@ -11,7 +11,7 @@ public class Persona implements Serializable {
 
     private String nome;
     private ColoriCrapa coloreCapelli;
-    private ColoriÖch coloreOcchi;
+    private ColoriOch coloreOcchi;
     private ColoriPelle colorePelle;
     private boolean occhiali;
     private boolean sesso;
@@ -22,12 +22,12 @@ public class Persona implements Serializable {
     private String percorsoImmagine;
     private final static List<String> nomi = new ArrayList<>();
 
-    public Persona(String nome, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato, String percorsoImmagine) {
+    public Persona(String nome, ColoriCrapa cc, ColoriOch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato, String percorsoImmagine) {
         this(nome, cc, co, cp, occhiali, sesso, capelliLunghi, barba, cappello, pelato);
         setPercorsoImmagine(percorsoImmagine);
     }
 
-    public Persona(String nome, ColoriCrapa cc, ColoriÖch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato) {
+    public Persona(String nome, ColoriCrapa cc, ColoriOch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato) {
         setNome(nome);
         setColoreCapelli(cc);
         setColoreOcchi(co);
@@ -95,11 +95,11 @@ public class Persona implements Serializable {
         this.coloreCapelli = coloreCapelli;
     }
 
-    public ColoriÖch getColoreOcchi() {
+    public ColoriOch getColoreOcchi() {
         return coloreOcchi;
     }
 
-    private void setColoreOcchi(ColoriÖch coloreOcchi) {
+    private void setColoreOcchi(ColoriOch coloreOcchi) {
         if (coloreOcchi == null) throw new NullPointerException("Il colore degli occhi non può essere null");
         this.coloreOcchi = coloreOcchi;
     }

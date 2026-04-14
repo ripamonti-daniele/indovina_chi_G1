@@ -279,9 +279,9 @@ public class Bot {
             case "ha la pelle bianca?" -> p.getColorePelle() == ColoriPelle.BIANCO;
             case "ha la pelle nera?" -> p.getColorePelle() == ColoriPelle.NERO;
             case "ha la pelle mulatta?" -> p.getColorePelle() == ColoriPelle.MULATTO;
-            case "ha gli occhi marroni?" -> p.getColoreOcchi() == ColoriÖch.MARRONE;
-            case "ha gli occhi blu?" -> p.getColoreOcchi() == ColoriÖch.BLU;
-            case "ha gli occhi verdi?" -> p.getColoreOcchi() == ColoriÖch.VERDE;
+            case "ha gli occhi marroni?" -> p.getColoreOcchi() == ColoriOch.MARRONE;
+            case "ha gli occhi blu?" -> p.getColoreOcchi() == ColoriOch.BLU;
+            case "ha gli occhi verdi?" -> p.getColoreOcchi() == ColoriOch.VERDE;
             case "ha gli occhiali?" -> p.isOcchiali();
             case "ha i capelli lunghi?" -> p.isCapelliLunghi();
             case "ha la barba o i baffi?" -> p.isBarba();

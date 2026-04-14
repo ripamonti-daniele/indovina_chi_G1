@@ -1,3 +1,3 @@
-public enum ColoriÖch {
+public enum ColoriOch {
     MARRONE, BLU, VERDE
 }
