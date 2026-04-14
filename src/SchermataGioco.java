@@ -189,12 +189,7 @@ public class SchermataGioco extends JFrame {
             boolean haVinto = segreta.getNome().equals(input.trim().toLowerCase());
 
             if (haVinto) {
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Giocatore " + turnoCorrente + " ha vinto!\nLa persona era: " + segreta.getNome(),
-                    "Hai vinto!",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
+                JOptionPane.showMessageDialog(this, "Giocatore " + turnoCorrente + " ha vinto!\nLa persona era: " + segreta.getNome(), "Hai vinto!", JOptionPane.INFORMATION_MESSAGE);
                 btnIndovina.setEnabled(false);
                 btnSaltaTurno.setEnabled(false);
             } else {
@@ -207,12 +202,7 @@ public class SchermataGioco extends JFrame {
 
                 labelTurno.setText("Turno: Giocatore " + turno[0]);
 
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Risposta sbagliata! Tocca al Giocatore " + turno[0],
-                    "Sbagliato!",
-                    JOptionPane.WARNING_MESSAGE
-                );
+                JOptionPane.showMessageDialog(this, "Risposta sbagliata! Tocca al Giocatore " + turno[0], "Sbagliato!", JOptionPane.WARNING_MESSAGE);
             }
         });
 
@@ -289,12 +279,7 @@ public class SchermataGioco extends JFrame {
             }
 
             if (scelta[0] == null) {
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Devi selezionare una persona prima di confermare.",
-                    "Attenzione",
-                    JOptionPane.WARNING_MESSAGE
-                );
+                JOptionPane.showMessageDialog(this, "Devi selezionare una persona prima di confermare.", "Attenzione", JOptionPane.WARNING_MESSAGE);
             }
         }
 
