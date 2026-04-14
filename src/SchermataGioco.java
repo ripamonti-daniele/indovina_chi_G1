@@ -102,6 +102,10 @@ public class SchermataGioco extends JFrame {
         //array per tenere conto del turno
         final int[] turno = {1};
 
+        //Creo i 2 dizionari perche poi cosi posso modificare l'immagine della persona (abbassando la casella)
+        Map<String, JPanel> cartaPerNomeG1 = new HashMap<>();
+        Map<String, JPanel> cartaPerNomeG2 = new HashMap<>();
+
 
         JPanel pannelloPrincipale = new JPanel(new BorderLayout());
         pannelloPrincipale.setBackground(new Color(158, 26, 14));
@@ -114,7 +118,8 @@ public class SchermataGioco extends JFrame {
         JLabel labelG1 = new JLabel("Giocatore 1", SwingConstants.CENTER);
         labelG1.setForeground(Color.WHITE);
         colonnaG1.add(labelG1, BorderLayout.NORTH);
-        colonnaG1.add(creaGriglia(persone, turno, 1, null), BorderLayout.CENTER);
+        colonnaG1.add(creaGriglia(persone, turno, 1, cartaPerNomeG1), BorderLayout.CENTER);
+
 
         //colonna destra
         JPanel colonnaG2 = new JPanel(new BorderLayout());
@@ -122,7 +127,7 @@ public class SchermataGioco extends JFrame {
         JLabel labelG2 = new JLabel("Giocatore 2", SwingConstants.CENTER);
         labelG2.setForeground(Color.WHITE);
         colonnaG2.add(labelG2, BorderLayout.NORTH);
-        colonnaG2.add(creaGriglia(persone, turno, 2, null), BorderLayout.CENTER);
+        colonnaG2.add(creaGriglia(persone, turno, 2, cartaPerNomeG2), BorderLayout.CENTER);
 
         JPanel pannelloCentrale = new JPanel(new GridLayout(1, 2, 0, 0));
         pannelloCentrale.setOpaque(false);
@@ -140,6 +145,17 @@ public class SchermataGioco extends JFrame {
         labelTurno.setAlignmentX(Component.CENTER_ALIGNMENT);
         labelTurno.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
+        JComboBox<String> comboDomande = new JComboBox<>(domandePossibili);
+        comboDomande.setMaximumSize(new Dimension(200, 28));
+        comboDomande.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton btnFaiDomanda = new JButton("Fai domanda");
+        btnFaiDomanda.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnFaiDomanda.setBackground(new Color(30, 100, 200));
+        btnFaiDomanda.setForeground(Color.WHITE);
+        btnFaiDomanda.setFocusPainted(false);
+        btnFaiDomanda.setMaximumSize(new Dimension(200, 40));
+
         JButton btnIndovina = new JButton("Tenta di indovinare!");
         btnIndovina.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnIndovina.setBackground(new Color(46, 160, 67));
@@ -147,20 +163,19 @@ public class SchermataGioco extends JFrame {
         btnIndovina.setFocusPainted(false);
         btnIndovina.setMaximumSize(new Dimension(200, 40));
 
-        JButton btnSaltaTurno = new JButton("Cambia turno");
-        btnSaltaTurno.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnSaltaTurno.setBackground(new Color(120, 120, 120));
-        btnSaltaTurno.setForeground(Color.WHITE);
-        btnSaltaTurno.setFocusPainted(false);
-        btnSaltaTurno.setMaximumSize(new Dimension(200, 40));
+
 
         pannelloLaterale.add(labelTurno);
         pannelloLaterale.add(btnIndovina);
         pannelloLaterale.add(Box.createVerticalStrut(10));
-        pannelloLaterale.add(btnSaltaTurno);
+        pannelloLaterale.add(comboDomande);
+        pannelloLaterale.add(Box.createVerticalStrut(8));
+        pannelloLaterale.add(btnFaiDomanda);
+        pannelloLaterale.add(Box.createVerticalStrut(10));
 
         pannelloPrincipale.add(pannelloCentrale, BorderLayout.CENTER);
         pannelloPrincipale.add(pannelloLaterale, BorderLayout.EAST);
+
 
         //funzione anonima che viene chiamata quando viene schiacciato il bottone che ci permette di creare
         //una finestra di dialogo per indovinare il personaggio scelto dall'avversario
@@ -191,7 +206,6 @@ public class SchermataGioco extends JFrame {
             if (haVinto) {
                 JOptionPane.showMessageDialog(this, "Giocatore " + turnoCorrente + " ha vinto!\nLa persona era: " + segreta.getNome(), "Hai vinto!", JOptionPane.INFORMATION_MESSAGE);
                 btnIndovina.setEnabled(false);
-                btnSaltaTurno.setEnabled(false);
             } else {
                 //se non ha indovinato cambia il turno
                 if (turnoCorrente == 1) {
@@ -206,16 +220,7 @@ public class SchermataGioco extends JFrame {
             }
         });
 
-        //modifica l'array con il turno dell'avversario
-        btnSaltaTurno.addActionListener(_ -> {
-            if (turno[0] == 1) {
-                turno[0] = 2;
-            } else {
-                turno[0] = 1;
-            }
 
-            labelTurno.setText("Turno: Giocatore " + turno[0]);
-        });
 
         revalidate();
         repaint();
