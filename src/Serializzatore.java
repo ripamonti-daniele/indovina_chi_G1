@@ -2,16 +2,16 @@ import java.io.*;
 import java.util.List;
 
 public class Serializzatore {
-    public static void serializza(List<Albero> a, String percorso) {
+    public static void serializzaAlbero(Albero albero, String percorso) {
         try {
             FileOutputStream file = new FileOutputStream(percorso);
             ObjectOutputStream output = new ObjectOutputStream(file);
-            output.writeObject(a);
+            output.writeObject(albero);
             output.close();
             file.close();
         }
         catch (IOException e) {
-            throw new RuntimeException("Errore nella serializzazione sul file " + percorso);
+            throw new RuntimeException("Errore nella serializzazione dell'albero sul file " + percorso);
         }
     }
 
