@@ -57,26 +57,22 @@ public class Serializzatore {
 
 
     @SuppressWarnings("unchecked")
-    public static Albero deSerializza(String percorso) {
+    public static Albero deSerializzaAlbero(String percorso) {
         try {
             FileInputStream file = new FileInputStream(percorso);
             ObjectInputStream input = new ObjectInputStream(file);
             Object o = input.readObject();
             input.close();
             file.close();
-            if (o instanceof List<?>) {
-                if (((List<?>) o).isEmpty()) return null;
-                if (((List<?>) o).stream().allMatch(e -> e instanceof Albero)) return (List<Albero>) o;
+
+            if (o instanceof Albero) {
+                return (Albero) o;
             }
             return null;
-        }
-        catch (IOException e) {
-            if (!percorso.equals("alberiBase.ser")) return deSerializza("alberiBase.ser");
-            throw new RuntimeException("Errore nella deSerializzazione del file " + percorso);
-        }
-        catch (ClassNotFoundException e) {
-            if (!percorso.equals("alberiBase.ser")) return deSerializza("alberiBase.ser");
-            throw new RuntimeException("Errore: non è stato deSerializzato un Object");
+        } catch (IOException e) {
+            return null;
+        }catch (ClassNotFoundException e){
+            return  null;
         }
     }
 }
