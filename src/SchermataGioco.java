@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.*;
@@ -163,8 +164,6 @@ public class SchermataGioco extends JFrame {
         btnIndovina.setFocusPainted(false);
         btnIndovina.setMaximumSize(new Dimension(200, 40));
 
-
-
         pannelloLaterale.add(labelTurno);
         pannelloLaterale.add(btnIndovina);
         pannelloLaterale.add(Box.createVerticalStrut(10));
@@ -235,8 +234,6 @@ public class SchermataGioco extends JFrame {
                 JOptionPane.showMessageDialog(this, "Risposta sbagliata! Tocca al Giocatore " + turno[0], "Sbagliato!", JOptionPane.WARNING_MESSAGE);
             }
         });
-
-
 
         revalidate();
         btnFaiDomanda.addActionListener(_ -> {
@@ -358,7 +355,6 @@ public class SchermataGioco extends JFrame {
         return scelta[0];
     }
 
-
     private JPanel creaGriglia(List<Persona> persone, int[] turno, int mioNumero, Map<String, JPanel> cartaPerNome) {
         JPanel griglia = new JPanel(new GridLayout(4, 7, 8, 8));
         griglia.setOpaque(false);
@@ -381,7 +377,6 @@ public class SchermataGioco extends JFrame {
 
             cella.add(carta);
             griglia.add(cella);
-
         }
 
         return griglia;
@@ -391,105 +386,30 @@ public class SchermataGioco extends JFrame {
         Persona personaSegreta = mostraSceltaPersona(1, persone);
         if (personaSegreta == null) return;
 
+        // Scegli una persona segreta per il bot (casuale)
+        Persona personaSegretaBot = persone.get(new Random().nextInt(persone.size()));
+
         getContentPane().removeAll();
         JPanel root = new JPanel(new BorderLayout());
         root.setBackground(new Color(158, 26, 14));
-        setContentPane(root);  // sostituisci il content pane
+        setContentPane(root);
 
-        //parte giocatore (sinistra)
-        pannelloGriglia = new JPanel(new GridLayout(4, 7, 15, 15));
-        pannelloGriglia.setOpaque(false);
-        pannelloGriglia.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        //parte del bot (destra)
-        JPanel pannelloGrigliaBot = new JPanel(new GridLayout(4, 7, 15, 15));
-        pannelloGrigliaBot.setOpaque(false);
-        pannelloGrigliaBot.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        this.persone = persone;
-
-        //PARTE DOMANDE E RISPOSTE
-        pannelloDomanda = new JPanel();
-        pannelloDomanda.setLayout(new BoxLayout(pannelloDomanda, BoxLayout.Y_AXIS));
-        pannelloDomanda.setBackground(new Color(180, 180, 180));
-        pannelloDomanda.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
-        pannelloDomanda.setPreferredSize(new Dimension(220, 0));
-
-        JLabel titoloLabel = new JLabel("Domanda");
-        titoloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titoloLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
-
-        //questa parte serve per le domande, per chi continua con il bot per cambiare ciò che c'è scritto dentro basta fare domande.setText(...);
-        domande = new JTextArea("");
-        domande.setLineWrap(true); //va a capo automaticamente
-        domande.setWrapStyleWord(true); //va a capo tutta la parola
-        domande.setEditable(false); //il testo non è modificabile
-        domande.setFocusable(false);//il testo non è selezionabile
-        domande.setOpaque(false); //testo trasparente dietro
-        domande.setAlignmentX(Component.CENTER_ALIGNMENT);
-        domande.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0)); //spazia tra domande e risposte
-
-        pannelloBottoni = new JPanel(new GridLayout(1, 2, 12, 0));
-        pannelloBottoni.setOpaque(false);
-        pannelloBottoni.setMaximumSize(new Dimension(190, 50));
-
-        si = new JButton("Sì");
-        si.setBackground(new Color(46, 160, 67));
-        si.setForeground(Color.WHITE); //mette il testo bianco
-        si.setFocusPainted(false); //toglie il quadratino intorno al button
-
-        no = new JButton("No");
-        no.setBackground(new Color(200, 40, 30));
-        no.setForeground(Color.WHITE);
-        no.setFocusPainted(false);
-
-        //vado a mostrare la prima domanda
-
-        scelta = albero.getRoot();
-        aggiornadomanda();
-
-        pannelloBottoni.add(si);
-        pannelloBottoni.add(no);
-        pannelloBottoni.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-
-        pannelloDomanda.add(titoloLabel);
-        pannelloDomanda.add(domande);
-
-        pannelloDomanda.add(Box.createVerticalGlue());
-        JLabel labelSegreta = new JLabel("La tua persona segreta:");
-        labelSegreta.setAlignmentX(Component.CENTER_ALIGNMENT);
-        labelSegreta.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-
-        JPanel cartaSegreta = new JPanel(new BorderLayout(0, 4));
-        cartaSegreta.setBackground(new Color(210, 210, 210));
-        cartaSegreta.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
-        cartaSegreta.setMaximumSize(new Dimension(110, 150));
-        cartaSegreta.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JLabel imgSegreta = new JLabel(personaSegreta.getImmagine(90, 110));
-        imgSegreta.setHorizontalAlignment(SwingConstants.CENTER);
-        cartaSegreta.add(imgSegreta, BorderLayout.CENTER);
-
-        pannelloDomanda.add(labelSegreta);
-        pannelloDomanda.add(cartaSegreta);
-        pannelloDomanda.add(pannelloBottoni);
-
-        int[] turno = {1};
-        Map<String, JPanel> cartaPerNome = new HashMap<>();
+        Map<String, JPanel> cartaPerNomeGiocatore = new HashMap<>();
         Map<String, JPanel> cartaPerNomeBot = new HashMap<>();
 
-        si.addActionListener(_ -> avanza(true, cartaPerNomeBot));
-        no.addActionListener(_ -> avanza(false, cartaPerNomeBot));
+        // 1 = giocatore; 2 = bot
+        int[] turno = {1};
 
+        // Colonna giocatore (sinistra)
         JPanel colonnaGiocatore = new JPanel(new BorderLayout());
         colonnaGiocatore.setOpaque(false);
         colonnaGiocatore.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 3, new Color(60, 60, 60)));
         JLabel labelG1 = new JLabel("Giocatore", SwingConstants.CENTER);
         labelG1.setForeground(Color.WHITE);
         colonnaGiocatore.add(labelG1, BorderLayout.NORTH);
-        colonnaGiocatore.add(creaGriglia(persone, turno, 1, cartaPerNome), BorderLayout.CENTER);
+        colonnaGiocatore.add(creaGriglia(persone, turno, 1, cartaPerNomeGiocatore), BorderLayout.CENTER);
 
-        //colonna destra
+        // Colonna bot (destra)
         JPanel colonnaBot = new JPanel(new BorderLayout());
         colonnaBot.setOpaque(false);
         JLabel labelG2 = new JLabel("Bot", SwingConstants.CENTER);
@@ -502,20 +422,200 @@ public class SchermataGioco extends JFrame {
         pannelloCentrale.add(colonnaGiocatore);
         pannelloCentrale.add(colonnaBot);
 
-        root.add(pannelloCentrale, BorderLayout.CENTER);
-        root.add(pannelloDomanda, BorderLayout.EAST);
+        // Pannello laterale
+        JPanel pannelloLaterale = new JPanel();
+        pannelloLaterale.setLayout(new BoxLayout(pannelloLaterale, BoxLayout.Y_AXIS));
+        pannelloLaterale.setBackground(new Color(180, 180, 180));
+        pannelloLaterale.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
+        pannelloLaterale.setPreferredSize(new Dimension(220, 0));
 
+        JLabel labelTurno = new JLabel("Turno: Giocatore");
+        labelTurno.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelTurno.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+
+        // Sezione turno giocatore
+        JComboBox<String> comboDomande = new JComboBox<>(domandePossibili);
+        comboDomande.setMaximumSize(new Dimension(200, 28));
+        comboDomande.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton btnFaiDomanda = new JButton("Fai domanda");
+        btnFaiDomanda.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnFaiDomanda.setBackground(new Color(30, 100, 200));
+        btnFaiDomanda.setForeground(Color.WHITE);
+        btnFaiDomanda.setFocusPainted(false);
+        btnFaiDomanda.setMaximumSize(new Dimension(200, 40));
+
+        JButton btnIndovina = new JButton("Tenta di indovinare");
+        btnIndovina.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnIndovina.setBackground(new Color(46, 160, 67));
+        btnIndovina.setForeground(Color.WHITE);
+        btnIndovina.setFocusPainted(false);
+        btnIndovina.setMaximumSize(new Dimension(200, 40));
+
+        // Persona segreta del giocatore mostrata in basso
+        JLabel labelSegreta = new JLabel("La tua persona segreta:");
+        labelSegreta.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelSegreta.setBorder(BorderFactory.createEmptyBorder(10, 0, 8, 0));
+
+        JPanel cartaSegreta = new JPanel(new BorderLayout(0, 4));
+        cartaSegreta.setBackground(new Color(210, 210, 210));
+        cartaSegreta.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
+        cartaSegreta.setMaximumSize(new Dimension(110, 150));
+        cartaSegreta.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel imgSegreta = new JLabel(personaSegreta.getImmagine(90, 110));
+        imgSegreta.setHorizontalAlignment(SwingConstants.CENTER);
+        cartaSegreta.add(imgSegreta, BorderLayout.CENTER);
+
+        // Combo e bottoni in cima, poi labelTurno, poi in fondo la carta segreta
+        pannelloLaterale.add(comboDomande);
+        pannelloLaterale.add(Box.createVerticalStrut(8));
+        pannelloLaterale.add(btnFaiDomanda);
+        pannelloLaterale.add(Box.createVerticalStrut(8));
+        pannelloLaterale.add(btnIndovina);
+        pannelloLaterale.add(Box.createVerticalStrut(12));
+        pannelloLaterale.add(labelTurno);
+        pannelloLaterale.add(Box.createVerticalGlue());
+        pannelloLaterale.add(labelSegreta);
+        pannelloLaterale.add(cartaSegreta);
+
+        root.add(pannelloCentrale, BorderLayout.CENTER);
+        root.add(pannelloLaterale, BorderLayout.EAST);
+
+        // Stato dell'albero per il bot
+        scelta = albero.getRoot();
+
+        // Abilita/disabilita i controlli del giocatore in base al turno
+        Runnable aggiornaUI = () -> {
+            boolean turnoGiocatore = turno[0] == 1;
+            comboDomande.setEnabled(turnoGiocatore);
+            btnFaiDomanda.setEnabled(turnoGiocatore);
+            btnIndovina.setEnabled(turnoGiocatore);
+            if (turnoGiocatore) labelTurno.setText("Turno: Giocatore");
+            else labelTurno.setText("Turno: Bot");
+        };
+
+        // Fai domanda
+        btnFaiDomanda.addActionListener(_ -> {
+            String domanda = (String) comboDomande.getSelectedItem();
+            if (domanda == null) return;
+
+            // Il bot risponde automaticamente in base alla sua persona segreta
+            boolean risposta = rispondeDomanda(personaSegretaBot, domanda);
+            String rispostaStr = risposta ? "Sì" : "No";
+
+            JOptionPane.showMessageDialog(this, "Bot risponde: " + rispostaStr, "Risposta del bot", JOptionPane.INFORMATION_MESSAGE);
+
+            // Filtra la griglia del giocatore
+            for (Persona p : persone) {
+                if (rispondeDomanda(p, domanda) != risposta) {
+                    abbattiCarta(p.getNome(), cartaPerNomeGiocatore);
+                }
+            }
+
+            // Turno del bot
+            turno[0] = 2;
+            aggiornaUI.run();
+            eseguiTurnoBot(personaSegreta, cartaPerNomeBot, turno, btnFaiDomanda, comboDomande, btnIndovina, aggiornaUI);
+        });
+
+        // Tenta di indovinare (giocatore)
+        btnIndovina.addActionListener(_ -> {
+            String input = JOptionPane.showInputDialog(this, "Inserisci il nome della persona segreta del bot:", "Tenta di indovinare", JOptionPane.QUESTION_MESSAGE);
+            if (input == null) return;
+
+            String nomeInput = input.trim().toLowerCase();
+
+            boolean esiste = persone.stream().anyMatch(p -> p.getNome().equals(nomeInput));
+            if (!esiste) {
+                JOptionPane.showMessageDialog(this, "\"" + nomeInput + "\" non è un personaggio valido.", "Nome non valido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (personaSegretaBot.getNome().equals(nomeInput)) {
+                JOptionPane.showMessageDialog(this, "Hai vinto! La persona del bot era: " + personaSegretaBot.getNome(), "Hai vinto!", JOptionPane.INFORMATION_MESSAGE);
+                btnFaiDomanda.setEnabled(false);
+                btnIndovina.setEnabled(false);
+                comboDomande.setEnabled(false);
+            } else {
+                JOptionPane.showMessageDialog(this, "Sbagliato! Tocca al bot.", "Risposta errata", JOptionPane.WARNING_MESSAGE);
+                turno[0] = 2;
+                aggiornaUI.run();
+                eseguiTurnoBot(personaSegreta, cartaPerNomeBot, turno, btnFaiDomanda, comboDomande, btnIndovina, aggiornaUI);
+            }
+        });
+
+        aggiornaUI.run();
         revalidate();
         repaint();
     }
 
+    // Turno del bot: usa l'albero per fare la domanda, il giocatore risponde
+    private void eseguiTurnoBot(Persona personaSegreta, Map<String, JPanel> cartaPerNomeBot, int[] turno, JButton btnFaiDomanda, JComboBox<String> comboDomande, JButton btnIndovina, Runnable aggiornaUI) {
+        if (scelta == null) return;
+
+        // Il bot ha trovato la persona
+        if (scelta.getPersona() != null) {
+            String tentativo = scelta.getPersona().getNome();
+            if (tentativo.equals(personaSegreta.getNome())) {
+                JOptionPane.showMessageDialog(this, "Il bot ha indovinato! Hai perso.\nLa tua persona era: " + personaSegreta.getNome(), "Il bot ha vinto!", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Il bot ha tentato con \"" + tentativo + "\" ma ha sbagliato!\nTocca a te.", "Bot sbagliato", JOptionPane.INFORMATION_MESSAGE);
+            }
+            btnFaiDomanda.setEnabled(false);
+            btnIndovina.setEnabled(false);
+            comboDomande.setEnabled(false);
+            return;
+        }
+
+        // Il bot fa la domanda dall'albero
+        String domandaBot = scelta.getDomanda();
+
+        // Il giocatore risponde manualmente
+        int sceltaUtente = JOptionPane.showOptionDialog(this, "Il bot ti chiede:\n\"" + domandaBot + "\"", "Domanda del Bot", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[]{"Sì", "No"}, "Sì");
+        if (sceltaUtente == JOptionPane.CLOSED_OPTION) return;
+
+        boolean rispostaGiocatore = (sceltaUtente == 0);
+
+        // Verifica che il giocatore risponda correttamente (come nella modalità 2 persone)
+        boolean rispostaCorretta = rispondeDomanda(personaSegreta, domandaBot);
+        while (rispostaGiocatore != rispostaCorretta) {
+            JOptionPane.showMessageDialog(this, "Risposta sbagliata! Devi rispondere correttamente.", "Errore", JOptionPane.ERROR_MESSAGE);
+            sceltaUtente = JOptionPane.showOptionDialog(this, "Il bot ti chiede:\n\"" + domandaBot + "\"", "Domanda del Bot", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[]{"Sì", "No"}, "Sì");
+            if (sceltaUtente == JOptionPane.CLOSED_OPTION) return;
+            rispostaGiocatore = (sceltaUtente == 0);
+        }
+
+        // Il bot filtra la sua griglia
+        Nodo ramoScartato;
+        if (rispostaGiocatore) {
+            ramoScartato = scelta.getNo();
+        } else {
+            ramoScartato = scelta.getSi();
+        }
+        List<String> daAbbattere = personeRaggiungibili(ramoScartato);
+        for (String nome : daAbbattere) {
+            abbattiCarta(nome, cartaPerNomeBot);
+        }
+
+        // Avanza l'albero del bot
+        if (rispostaGiocatore) {
+            scelta = scelta.getSi();
+        } else {
+            scelta = scelta.getNo();
+        }
+
+        // Torna il turno al giocatore
+        turno[0] = 1;
+        aggiornaUI.run();
+    }
+
     //aggiorno il testo all'interno del pannello delle domande
     private void aggiornadomanda() {
-        if(scelta != null){
-            if(scelta.getDomanda() != null){
+        if (scelta != null) {
+            if (scelta.getDomanda() != null) {
                 domande.setText(scelta.getDomanda());
             }
-        }else{
+        } else {
             throw new IllegalArgumentException("scegli prima il personaggio");
         }
     }
@@ -525,9 +625,9 @@ public class SchermataGioco extends JFrame {
 
         // raccoglie le persone raggiungibili dal ramo SCARTATO
         Nodo ramoScartato;
-        if (risposta){
+        if (risposta) {
             ramoScartato = scelta.getNo();
-        }else{
+        } else {
             ramoScartato = scelta.getSi();
         }
         List<String> daAbbattere = personeRaggiungibili(ramoScartato);

@@ -1,3 +1,11 @@
+//TODO
+// fare in modo che le domande che non diminuiscono le persone rimaste vengano eliminate
+// bloccare le risposte sbagliate alle domande del bot
+// grafica migliore
+// serializzazione persone e bot
+// se ci sono errori nella creazione bot fare in modo che lo si ottenga tramite la deSerializzazione
+// fare un bot statisticamente il migliore possibile
+
 void main() {
     System.setProperty("sun.java2d.uiScale", "1"); //mantiene le immagini a qualità alta su tutti i monitor
 
