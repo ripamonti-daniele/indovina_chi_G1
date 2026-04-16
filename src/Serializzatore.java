@@ -13,7 +13,29 @@ public class Serializzatore {
         catch (IOException e) {
             throw new RuntimeException("Errore nella serializzazione dell'albero sul file " + percorso);
         }
-    } 
+    }
+
+    public static List<Persona> deSerializzaPersone(String percorso) {
+        try {
+            FileInputStream file = new FileInputStream(percorso);
+            ObjectInputStream input = new ObjectInputStream(file);
+            Object o = input.readObject();
+            input.close();
+            file.close();
+
+            if (o instanceof List) {
+                List lista = (List) o;
+                if (!lista.isEmpty()) {
+                    return (List<Persona>) lista;
+                }
+            }
+            return null;
+        }
+        catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException("Errore nel caricamento delle persone. File non trovato!");
+        }
+    }
+
 
     @SuppressWarnings("unchecked")
     public static List<Albero> deSerializza(String percorso) {
