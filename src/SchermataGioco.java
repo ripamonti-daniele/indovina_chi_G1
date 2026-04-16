@@ -382,16 +382,6 @@ public class SchermataGioco extends JFrame {
             cella.add(carta);
             griglia.add(cella);
 
-            carta.addMouseListener(new java.awt.event.MouseAdapter() {
-                @Override
-                public void mouseClicked(java.awt.event.MouseEvent e) {
-                    if (turno[0] != mioNumero || mioNumero == -1) return;
-                    carta.setBackground(Color.YELLOW);
-                    carta.removeAll();
-                    carta.revalidate();
-                    carta.repaint();
-                }
-            });
         }
 
         return griglia;
