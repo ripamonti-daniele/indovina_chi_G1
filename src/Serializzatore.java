@@ -23,22 +23,28 @@ public class Serializzatore {
             input.close();
             file.close();
 
-            if (o instanceof List) {
-                List lista = (List) o;
-                if (!lista.isEmpty()) {
-                    return (List<Persona>) lista;
-                }
+            if (o instanceof List<?>) {
+                if (((List<?>) o).isEmpty()) return null;
+                if (((List<?>) o).stream().allMatch(e -> e instanceof Persona))
+                    return (List<Persona>) o;
             }
             return null;
         }
-        catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Errore nel caricamento delle persone. File non trovato!");
+        catch (IOException e) {
+            if (!percorso.equals("persone.ser"))
+                return deSerializzaPersone("persone.ser");
+            throw new RuntimeException("Errore nella deSerializzazione del file " + percorso);
+        }
+        catch (ClassNotFoundException e) {
+            if (!percorso.equals("persone.ser"))
+                return deSerializzaPersone("persone.ser");
+            throw new RuntimeException("Errore: non è stato deSerializzato un Object");
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    public static List<Albero> deSerializza(String percorso) {
+    public static Albero deSerializza(String percorso) {
         try {
             FileInputStream file = new FileInputStream(percorso);
             ObjectInputStream input = new ObjectInputStream(file);
