@@ -13,7 +13,7 @@ public class Serializzatore {
         catch (IOException e) {
             throw new RuntimeException("Errore nella serializzazione dell'albero sul file " + percorso);
         }
-    }
+    } 
 
     @SuppressWarnings("unchecked")
     public static List<Albero> deSerializza(String percorso) {
