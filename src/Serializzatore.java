@@ -15,6 +15,19 @@ public class Serializzatore {
         }
     }
 
+    public static void serializzaPersone(List<Persona> persone, String percorso) {
+        try {
+            FileOutputStream file = new FileOutputStream(percorso);
+            ObjectOutputStream output = new ObjectOutputStream(file);
+            output.writeObject(persone);
+            output.close();
+            file.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Errore nella serializzazione delle persone");
+        }
+    }
+
     public static List<Persona> deSerializzaPersone(String percorso) {
         try {
             FileInputStream file = new FileInputStream(percorso);
