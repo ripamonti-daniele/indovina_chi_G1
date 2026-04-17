@@ -137,11 +137,21 @@ public class Bot {
         // scegliamo una domanda random tra quelle non ancora usate
         List<String> disponibili = new ArrayList<>();
         for (String d : domande) {
-            //categoriaGiaConfermata(d, domandeConfermate)): se una domanda con la stessa categoria ha avuto come risposta si
-            //puoi escluderla
-            if (!domandeUsate.contains(d) && !categoriaGiaConfermata(d, domandeConfermate)) disponibili.add(d);
+            if (!domandeUsate.contains(d) && !categoriaGiaConfermata(d, domandeConfermate)) {
+                List<Persona> si = interseca(personeCorrente, opzioni.get(d + "S"));
+                List<Persona> no = interseca(personeCorrente, opzioni.get(d + "N"));
+                if (!si.isEmpty() && !no.isEmpty()) {
+                    disponibili.add(d);
+                }
+            }
         }
 
+        if (disponibili.isEmpty()) {
+            for (Persona p : personeCorrente) {
+                albero.inserisciPersona(idPadre, p, rispostaPadre);
+            }
+            return;
+        }
 
         Collections.shuffle(disponibili);
         String domandaScelta = disponibili.getFirst();
@@ -152,26 +162,6 @@ public class Bot {
         List<Persona> filtroSI = interseca(personeCorrente, tutteSI);
         List<Persona> filtroNO = interseca(personeCorrente, tutteNO);
 
-        int i = 1;
-        while ((filtroSI.size() == tutteSI.size() || filtroNO.size() == tutteNO.size() || filtroSI.isEmpty() || filtroNO.isEmpty()) && i < disponibili.size()) {
-            domandaScelta = disponibili.get(i);
-            tutteSI = opzioni.get(domandaScelta + "S");
-            tutteNO = opzioni.get(domandaScelta + "N");
-            filtroSI = interseca(personeCorrente, tutteSI);
-            filtroNO = interseca(personeCorrente, tutteNO);
-            i++;
-        }
-
-        if ((filtroSI.isEmpty() || filtroNO.isEmpty())) {
-            for (String domanda : disponibili) {
-                domandaScelta = domanda;
-                tutteSI = opzioni.get(domanda + "S");
-                tutteNO = opzioni.get(domanda + "N");
-                filtroSI = interseca(personeCorrente, tutteSI);
-                filtroNO = interseca(personeCorrente, tutteNO);
-                if (!filtroSI.isEmpty() && !filtroNO.isEmpty()) break;
-            }
-        }
 
         int idNuovo = albero.inserisciDomanda(idPadre, domandaScelta, rispostaPadre);
 
