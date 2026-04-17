@@ -102,6 +102,7 @@ public class SchermataGioco extends JFrame {
 
         //array per tenere conto del turno
         final int[] turno = {1};
+        List<String> domandeFatte = new ArrayList<>();
 
         //Creo i 2 dizionari perche poi cosi posso modificare l'immagine della persona (abbassando la casella)
         Map<String, JPanel> cartaPerNomeG1 = new HashMap<>();
@@ -221,6 +222,8 @@ public class SchermataGioco extends JFrame {
             if (haVinto) {
                 JOptionPane.showMessageDialog(this, "Giocatore " + turnoCorrente + " ha vinto!\nLa persona era: " + segreta.getNome(), "Hai vinto!", JOptionPane.INFORMATION_MESSAGE);
                 btnIndovina.setEnabled(false);
+
+                return;
             } else {
                 //se non ha indovinato cambia il turno
                 if (turnoCorrente == 1) {
@@ -239,6 +242,7 @@ public class SchermataGioco extends JFrame {
         btnFaiDomanda.addActionListener(_ -> {
             // prende la domanda selezionata dalla combobox
             String domanda = (String) comboDomande.getSelectedItem();
+            domandeFatte.add(domanda);
             if (domanda == null) return;
 
             // calcola chi deve rispondere (l'avversario)
@@ -288,6 +292,19 @@ public class SchermataGioco extends JFrame {
                     abbattiCarta(p.getNome(), cartaDaAggiornare);
                 }
             }
+
+            if (rispostaCorretta) {
+                // qui puoi usare categoriaGiaConfermata
+                for (int i = comboDomande.getItemCount() - 1; i >= 0; i--) {
+                    String d = comboDomande.getItemAt(i);
+
+                    if (categoriaGiaConfermata(d, domandeFatte)) {
+                        comboDomande.removeItem(d);
+                    }
+                }
+            }
+
+            comboDomande.removeItem(domanda);
 
             // passa il turno all'avversario
             turno[0] = avversario;
@@ -399,6 +416,8 @@ public class SchermataGioco extends JFrame {
 
         // 1 = giocatore; 2 = bot
         int[] turno = {1};
+
+
 
         // Colonna giocatore (sinistra)
         JPanel colonnaGiocatore = new JPanel(new BorderLayout());
@@ -512,6 +531,17 @@ public class SchermataGioco extends JFrame {
                 }
             }
 
+            // Rimuove le domande della stessa categoria
+            for (int i = comboDomande.getItemCount() - 1; i >= 0; i--) {
+                String d = comboDomande.getItemAt(i);
+                if (risposta && categoriaGiaConfermata(d, List.of(domanda))) {
+                    comboDomande.removeItem(d);
+                }
+            }
+
+            // Rimuove la domanda appena fatta
+            comboDomande.removeItem(domanda);
+
             // Turno del bot
             turno[0] = 2;
             aggiornaUI.run();
@@ -536,6 +566,7 @@ public class SchermataGioco extends JFrame {
                 btnFaiDomanda.setEnabled(false);
                 btnIndovina.setEnabled(false);
                 comboDomande.setEnabled(false);
+                this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Sbagliato! Tocca al bot.", "Risposta errata", JOptionPane.WARNING_MESSAGE);
                 turno[0] = 2;
@@ -609,6 +640,39 @@ public class SchermataGioco extends JFrame {
         aggiornaUI.run();
     }
 
+    private boolean categoriaGiaConfermata(String domanda, List<String> domandeConfermate) {
+        //questo array ci permette di eliminare tutte le domande simili a quella a cui abbiamo già risposto
+        //esempio: se il bot chiede se ha i capelli rossi e rispondo di si, non mi farà domande inerenti ai capelli
+        String[] capelli = {"ha i capelli castani?", "ha i capelli neri?", "ha i capelli biondi?", "ha i capelli rossi?", "ha i capelli bianchi?"};
+        String[] occhi   = {"ha gli occhi marroni?", "ha gli occhi blu?", "ha gli occhi verdi?"};
+        String[] pelle   = {"ha la pelle bianca?", "ha la pelle nera?", "ha la pelle mulatta?"};
+
+        String[] categoria = null;
+        for (String c : capelli)
+            if (c.equals(domanda)) {
+                categoria = capelli; break;
+            }
+
+        if (categoria == null){
+            for (String c : occhi)
+                if (c.equals(domanda)) {
+                    categoria = occhi; break;
+                }
+        }
+
+        if (categoria == null)
+            for (String c : pelle) if (c.equals(domanda)) { categoria = pelle; break; }
+
+        //esempio: categoria calvi, occhiali ecc ecc...
+        if (categoria == null) return false;
+
+        for (String confermata : domandeConfermate)
+            for (String c : categoria)
+                if (c.equals(confermata)) return true;
+
+        return false;
+    }
+
     //aggiorno il testo all'interno del pannello delle domande
     private void aggiornadomanda() {
         if (scelta != null) {
@@ -676,6 +740,7 @@ public class SchermataGioco extends JFrame {
         raccogliPersone(n.getSi(), nomi);
         raccogliPersone(n.getNo(), nomi);
     }
+
 
     private void abbattiCarta(String nome, Map<String, JPanel> cartaPerNome) {
         JPanel carta = cartaPerNome.get(nome);

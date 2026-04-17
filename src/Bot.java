@@ -182,7 +182,6 @@ public class Bot {
     }
 
     //serve per controllare se la domanda appartiene a una categoria gia risolta
-
     private boolean categoriaGiaConfermata(String domanda, List<String> domandeConfermate) {
         //questo array ci permette di eliminare tutte le domande simili a quella a cui abbiamo già risposto
         //esempio: se il bot chiede se ha i capelli rossi e rispondo di si, non mi farà domande inerenti ai capelli

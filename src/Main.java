@@ -1,10 +1,11 @@
 //TODO
-// 1: fare in modo che le domande che non diminuiscono le persone rimaste vengano eliminate
+// 1: fare in modo che le domande che non diminuiscono le persone rimaste vengano eliminate (fatto)
 // 2: bloccare le risposte sbagliate alle domande del bot
 // 3: grafica migliore
 // 4: serializzazione persone e bot
 // 5: se ci sono errori nella creazione bot fare in modo che lo si ottenga tramite la deSerializzazione
 // 6: fare un bot statisticamente il migliore possibile
+// 7: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
 
 void main() {
     System.setProperty("sun.java2d.uiScale", "1"); //mantiene le immagini a qualità alta su tutti i monitor
