@@ -153,6 +153,7 @@ public class Bot {
             return;
         }
 
+
         Collections.shuffle(disponibili);
         String domandaScelta = disponibili.getFirst();
 
