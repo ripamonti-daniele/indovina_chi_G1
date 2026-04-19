@@ -1,9 +1,8 @@
 //TODO
-// 1: fare in modo che le domande che non diminuiscono le persone rimaste vengano eliminate
-// 2: grafica migliore
-// 3: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
-// 4: riorganizzazione classe SchermataGioco
-// 5: documentazione
+// 1: grafica migliore
+// 2: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
+// 3: riorganizzazione classe SchermataGioco
+// 4: documentazione
 
 List<Persona> creaPersone() {
     List<Persona> persone = new ArrayList<>();

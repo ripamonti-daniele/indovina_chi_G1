@@ -83,14 +83,35 @@ public class SchermataGioco extends JFrame {
         bottone2.addActionListener(_ -> {
             String[] opzioni = {"Normale", "Difficile"};
             int scelta = JOptionPane.showOptionDialog(null, "Scegli la difficoltà", "Difficoltà", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, opzioni, opzioni[0]);
-            if (scelta == 0) inizializzaBot(persone, new Bot(persone));
-            else {
-                Bot bot;
+            Bot bot;
+            if (scelta == 0) {
+                try {
+                    bot = new Bot(persone);
+                }
+                catch (Exception _) {
+                    try {
+                        bot = Serializzatore.deSerializzaBot("files/bot.ser");
+                    }
+                    catch (RuntimeException _) {
+                        JOptionPane.showMessageDialog(null, "<html>Impossibile giocare contro il computer:<br>Riprova</html>", "Errore", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+                inizializzaBot(persone, bot);
+            }
+
+            else if (scelta == 1) {
                 try {
                     bot = Serializzatore.deSerializzaBot("files/botDifficile.ser");
                 }
                 catch (RuntimeException _) {
-                    bot = new Bot(persone, true);
+                    try {
+                        bot = new Bot(persone, true);
+                    }
+                    catch (Exception _) {
+                        JOptionPane.showMessageDialog(null, "<html>Impossibile giocare contro il computer:<br>Riprova</html>", "Errore", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                 }
                 inizializzaBot(persone, bot);
             }
@@ -116,7 +137,8 @@ public class SchermataGioco extends JFrame {
 
         //array per tenere conto del turno
         final int[] turno = {1};
-        List<String> domandeFatte = new ArrayList<>();
+        List<String> domandeFatteG1 = new ArrayList<>();
+        List<String> domandeFatteG2 = new ArrayList<>();
 
         //Creo i 2 dizionari perche poi cosi posso modificare l'immagine della persona (abbassando la casella)
         Map<String, JPanel> cartaPerNomeG1 = new HashMap<>();
@@ -135,7 +157,6 @@ public class SchermataGioco extends JFrame {
         labelG1.setForeground(Color.WHITE);
         colonnaG1.add(labelG1, BorderLayout.NORTH);
         colonnaG1.add(creaGriglia(persone, turno, 1, cartaPerNomeG1), BorderLayout.CENTER);
-
 
         //colonna destra
         JPanel colonnaG2 = new JPanel(new BorderLayout());
@@ -256,11 +277,12 @@ public class SchermataGioco extends JFrame {
         btnFaiDomanda.addActionListener(_ -> {
             // prende la domanda selezionata dalla combobox
             String domanda = (String) comboDomande.getSelectedItem();
-            domandeFatte.add(domanda);
             if (domanda == null) return;
+            int turnoCorrente = turno[0];
+            if (turnoCorrente == 1) domandeFatteG1.add(domanda);
+            else if (turnoCorrente == 2) domandeFatteG2.add(domanda);
 
             // calcola chi deve rispondere (l'avversario)
-            int turnoCorrente = turno[0];
             int avversario = (turnoCorrente == 1) ? 2 : 1;
 
             // calcola la risposta corretta in base alla persona segreta dell'avversario
@@ -307,18 +329,17 @@ public class SchermataGioco extends JFrame {
                 }
             }
 
-            if (rispostaCorretta) {
-                // qui puoi usare categoriaGiaConfermata
-                for (int i = comboDomande.getItemCount() - 1; i >= 0; i--) {
-                    String d = comboDomande.getItemAt(i);
+            List<String> domandeGiocatore = domandeFatteG1;
+            if (turnoCorrente == 1) domandeGiocatore = domandeFatteG2;
 
-                    if (categoriaGiaConfermata(d, domandeFatte)) {
-                        comboDomande.removeItem(d);
-                    }
+            comboDomande.removeAllItems();
+            // qui puoi usare categoriaGiaConfermata
+            for (String d : domandePossibili) {
+                if (!domandeGiocatore.contains(d) && !(rispostaCorretta && categoriaGiaConfermata(d, domandeGiocatore))) {
+                    comboDomande.addItem(d);
                 }
             }
-
-            comboDomande.removeItem(domanda);
+//            comboDomande.removeItem(domanda);
 
             // passa il turno all'avversario
             turno[0] = avversario;
@@ -399,6 +420,7 @@ public class SchermataGioco extends JFrame {
             carta.setBackground(new Color(210, 210, 210));
             carta.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
             carta.setPreferredSize(new Dimension(80, 100));
+            carta.setToolTipText(creaStringaToolTip(persona));
 
             JLabel immagine = new JLabel(persona.getImmagine(65, 80));
             immagine.setHorizontalAlignment(SwingConstants.CENTER);
@@ -677,7 +699,7 @@ public class SchermataGioco extends JFrame {
         if (categoria == null)
             for (String c : pelle) if (c.equals(domanda)) { categoria = pelle; break; }
 
-        //esempio: categoria calvi, occhiali ecc ecc...
+        //esempio: categoria calvi, occhiali ecc...
         if (categoria == null) return false;
 
         for (String confermata : domandeConfermate)
