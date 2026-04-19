@@ -2,16 +2,16 @@ import java.io.*;
 import java.util.List;
 
 public class Serializzatore {
-    public static void serializzaAlbero(Albero albero, String percorso) {
+    public static void serializzaBot(Bot bot, String percorso) {
         try {
             FileOutputStream file = new FileOutputStream(percorso);
             ObjectOutputStream output = new ObjectOutputStream(file);
-            output.writeObject(albero);
+            output.writeObject(bot);
             output.close();
             file.close();
         }
         catch (IOException e) {
-            throw new RuntimeException("Errore nella serializzazione dell'albero sul file " + percorso);
+            throw new RuntimeException("Errore nella serializzazione del bot sul file " + percorso);
         }
     }
 
@@ -28,6 +28,7 @@ public class Serializzatore {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static List<Persona> deSerializzaPersone(String percorso) {
         try {
             FileInputStream file = new FileInputStream(percorso);
@@ -38,26 +39,24 @@ public class Serializzatore {
 
             if (o instanceof List<?>) {
                 if (((List<?>) o).isEmpty()) return null;
-                if (((List<?>) o).stream().allMatch(e -> e instanceof Persona))
-                    return (List<Persona>) o;
+                if (((List<?>) o).stream().allMatch(e -> e instanceof Persona)) return (List<Persona>) o;
             }
             return null;
         }
         catch (IOException e) {
-            if (!percorso.equals("persone.ser"))
-                return deSerializzaPersone("persone.ser");
+            String p = "files/persone.ser";
+            if (!percorso.equals(p)) return deSerializzaPersone(p);
             throw new RuntimeException("Errore nella deSerializzazione del file " + percorso);
         }
         catch (ClassNotFoundException e) {
-            if (!percorso.equals("persone.ser"))
-                return deSerializzaPersone("persone.ser");
+            String p = "files/persone.ser";
+            if (!percorso.equals(p)) return deSerializzaPersone(p);
             throw new RuntimeException("Errore: non è stato deSerializzato un Object");
         }
     }
 
 
-    @SuppressWarnings("unchecked")
-    public static Albero deSerializzaAlbero(String percorso) {
+    public static Bot deSerializzaBot(String percorso) {
         try {
             FileInputStream file = new FileInputStream(percorso);
             ObjectInputStream input = new ObjectInputStream(file);
@@ -65,14 +64,14 @@ public class Serializzatore {
             input.close();
             file.close();
 
-            if (o instanceof Albero) {
-                return (Albero) o;
-            }
+            if (o instanceof Bot) return (Bot) o;
             return null;
-        } catch (IOException e) {
-            return null;
-        }catch (ClassNotFoundException e){
-            return  null;
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Errore nella deSerializzazione del file " + percorso);
+        }
+        catch (ClassNotFoundException e){
+            throw new RuntimeException("Errore: non è stato deSerializzato un Object");
         }
     }
 }

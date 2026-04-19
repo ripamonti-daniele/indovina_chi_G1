@@ -1,15 +1,11 @@
 //TODO
-// 1: fare in modo che le domande che non diminuiscono le persone rimaste vengano eliminate (fatto)
+// 1: fare in modo che le domande che non diminuiscono le persone rimaste vengano eliminate
 // 2: bloccare le risposte sbagliate alle domande del bot
 // 3: grafica migliore
-// 4: serializzazione persone e bot
-// 5: se ci sono errori nella creazione bot fare in modo che lo si ottenga tramite la deSerializzazione
-// 6: fare un bot statisticamente il migliore possibile
-// 7: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
+// 4: fare un bot statisticamente il migliore possibile
+// 5: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
 
-void main() {
-    System.setProperty("sun.java2d.uiScale", "1"); //mantiene le immagini a qualità alta su tutti i monitor
-
+List<Persona> creaPersone() {
     List<Persona> persone = new ArrayList<>();
     persone.add(new Persona("patrick", ColoriCrapa.CASTANO, ColoriOch.MARRONE, ColoriPelle.BIANCO, false, true, true, true, false, false, "img/patrick.png"));
     persone.add(new Persona("sarah", ColoriCrapa.CASTANO, ColoriOch.MARRONE, ColoriPelle.NERO, false, false, true, false, false, false,"img/sarah.png"));
@@ -39,22 +35,24 @@ void main() {
     persone.add(new Persona("robert", ColoriCrapa.CASTANO, ColoriOch.MARRONE, ColoriPelle.BIANCO, true, true, false, false, false, false,"img/robert.png"));
     persone.add(new Persona("mallory", ColoriCrapa.CASTANO, ColoriOch.BLU, ColoriPelle.BIANCO, false, false, true, false, false, false,"img/mallory.png"));
     persone.add(new Persona("zachary", ColoriCrapa.ROSSO, ColoriOch.VERDE, ColoriPelle.BIANCO, false, true, true, false, false, false,"img/zachary.png"));
+    return persone;
+}
+
+void main() {
+    System.setProperty("sun.java2d.uiScale", "1"); //mantiene le immagini a qualità alta su tutti i monitor
+
+    List<Persona> persone;
+
+    try {
+        persone = Serializzatore.deSerializzaPersone("files/persone.ser");
+    }
+    catch (RuntimeException e) {
+        System.out.println(e.getMessage());
+        persone = creaPersone();
+    }
 
     Bot bot = new Bot(persone);
     Albero albero = bot.creaAlbero();
 
-    SchermataGioco scg = new SchermataGioco(persone, albero, bot.getDomande());
-
-//    Albero alb = null;
-//    try {
-//        List<Albero> alberi = Serializzatore.deSerializza("src/alberiBase.ser");
-//        if (alberi != null && !alberi.isEmpty()) alb = alberi.getFirst();
-//    }
-//    catch (Exception e) {
-//        System.out.println(e.getMessage());
-//    }
-
-//    SchermataGioco sg;
-//    if (albero != null) sg = new SchermataGioco(albero);
-//    System.out.println(a);
+    SchermataGioco sg = new SchermataGioco(persone, albero, bot.getDomande());
 }
