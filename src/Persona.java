@@ -165,6 +165,11 @@ public class Persona implements Serializable {
         return new ArrayList<>(nomi);
     }
 
+    private Object readResolve() {
+        if (!nomi.contains(this.nome)) nomi.add(this.nome);
+        return this;
+    }
+
     @Override
     public String toString() {
         String s = "caratteristiche " + nome + ":\n";

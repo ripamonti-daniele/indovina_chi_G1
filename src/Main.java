@@ -1,8 +1,8 @@
 //TODO
-// 1: grafica migliore
-// 2: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
-// 3: riorganizzazione classe SchermataGioco
-// 4: documentazione
+// 1: grafica migliore (opzionale per ora potrebbe andare bene anche così)
+// 2: ci sono metodi che non sono utilizzati nelle varie classi, si potrebbero anche togliere
+// 3: documentazione
+
 
 List<Persona> creaPersone() {
     List<Persona> persone = new ArrayList<>();
@@ -43,6 +43,7 @@ void main() {
     List<Persona> persone;
 
     try {
+
         persone = Serializzatore.deSerializzaPersone("files/persone.ser");
     }
     catch (RuntimeException e) {
