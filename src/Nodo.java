@@ -37,8 +37,7 @@ public class Nodo implements Serializable {
 
     private void setDomanda(String domanda) {
         domanda = domanda.trim().toLowerCase();
-        if (domanda.isEmpty() || domanda.length() > 40)
-            throw new IllegalArgumentException("Lunghezza domanda non valida");
+        if (domanda.isEmpty() || domanda.length() > 40) throw new IllegalArgumentException("Lunghezza domanda non valida");
         this.domanda = domanda;
         persona = null;
     }

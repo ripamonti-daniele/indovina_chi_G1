@@ -23,7 +23,7 @@ public class SchermataGioco extends JFrame {
 
     private Nodo scelta;
 
-    public SchermataGioco(List<Persona> persone, Albero albero, String[] domandePossibili) {
+    public SchermataGioco(List<Persona> persone, String[] domandePossibili) {
         if (domandePossibili == null || domandePossibili.length == 0) throw new IllegalArgumentException("Le domande non possono essere null o vuote");
         this.domandePossibili = domandePossibili;
         setTitle("IndovinaChi");
@@ -80,7 +80,21 @@ public class SchermataGioco extends JFrame {
         //il trattino basso viene utilizzato quando il parametro non è utilizzato
         bottone1.addActionListener(_ -> inizializzaInPersona(persone));
 
-        bottone2.addActionListener(_ -> inizializzaBot(persone, albero));
+        bottone2.addActionListener(_ -> {
+            String[] opzioni = {"Normale", "Difficile"};
+            int scelta = JOptionPane.showOptionDialog(null, "Scegli la difficoltà", "Difficoltà", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, opzioni, opzioni[0]);
+            if (scelta == 0) inizializzaBot(persone, new Bot(persone));
+            else {
+                Bot bot;
+                try {
+                    bot = Serializzatore.deSerializzaBot("files/botDifficile.ser");
+                }
+                catch (RuntimeException _) {
+                    bot = new Bot(persone, true);
+                }
+                inizializzaBot(persone, bot);
+            }
+        });
 
         bottone3.addActionListener(_ -> dispose());
 
@@ -399,7 +413,7 @@ public class SchermataGioco extends JFrame {
         return griglia;
     }
 
-    private void inizializzaBot(List<Persona> persone, Albero albero) {
+    private void inizializzaBot(List<Persona> persone, Bot bot) {
         Persona personaSegreta = mostraSceltaPersona(1, persone);
         if (personaSegreta == null) return;
 
@@ -501,7 +515,7 @@ public class SchermataGioco extends JFrame {
         root.add(pannelloLaterale, BorderLayout.EAST);
 
         // Stato dell'albero per il bot
-        scelta = albero.getRoot();
+        scelta = bot.getRoot();
 
         // Abilita/disabilita i controlli del giocatore in base al turno
         Runnable aggiornaUI = () -> {

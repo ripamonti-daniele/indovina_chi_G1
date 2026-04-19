@@ -1,9 +1,9 @@
 //TODO
 // 1: fare in modo che le domande che non diminuiscono le persone rimaste vengano eliminate
-// 2: bloccare le risposte sbagliate alle domande del bot
-// 3: grafica migliore
-// 4: fare un bot statisticamente il migliore possibile
-// 5: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
+// 2: grafica migliore
+// 3: fare in modo che se la partita termina il giocatore può decidere se giocare ancora, uscire o tornare al menu principale
+// 4: riorganizzazione classe SchermataGioco
+// 5: documentazione
 
 List<Persona> creaPersone() {
     List<Persona> persone = new ArrayList<>();
@@ -51,8 +51,5 @@ void main() {
         persone = creaPersone();
     }
 
-    Bot bot = new Bot(persone);
-    Albero albero = bot.creaAlbero();
-
-    SchermataGioco sg = new SchermataGioco(persone, albero, bot.getDomande());
+    SchermataGioco sg = new SchermataGioco(persone, Bot.getDomande());
 }

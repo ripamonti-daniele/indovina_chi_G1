@@ -1,9 +1,32 @@
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
-public class Bot {
+public class Bot implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 3L;
+
     private final Map<String, List<Persona>> opzioni = new HashMap<>();
-    private final List<Persona> tutte;
-    private final String[] domande;
+    private List<Persona> tutte;
+    private static final String[] domande = {
+        "è maschio?",
+        "ha i capelli castani?",
+        "ha i capelli neri?",
+        "ha i capelli biondi?",
+        "ha i capelli rossi?",
+        "ha i capelli bianchi?",
+        "ha la pelle bianca?",
+        "ha la pelle nera?",
+        "ha la pelle mulatta?",
+        "ha gli occhi marroni?",
+        "ha gli occhi blu?",
+        "ha gli occhi verdi?",
+        "ha gli occhiali?",
+        "ha i capelli lunghi?",
+        "ha la barba o i baffi?",
+        "ha il cappello?",
+        "è pelato?"
+    };
 
     private Persona personaggioDaScoprire;
 
@@ -11,14 +34,24 @@ public class Bot {
     private Nodo nodoCorrente;
     private Albero albero;
 
-    public Bot(List<Persona> persone) {
-        if (persone == null || persone.isEmpty()) throw new IllegalArgumentException("La lista non può essere null o vuota");
-        this.tutte = persone;
-        domande = new String[17];
-        inizializza();
+    public Bot(List<Persona> persone, boolean difficile) {
+        setPersone(persone);
+        inizializza(difficile);
     }
 
-    public String[] getDomande() {
+    public Bot(List<Persona> persone) {
+        this(persone, false);
+    }
+
+    private void setPersone(List<Persona> persone) {
+        if (persone == null) throw new IllegalArgumentException("Persone non può essere null");
+        if (persone.isEmpty()) throw new IllegalArgumentException("Persone non può essere vuota");
+        tutte = new ArrayList<>();
+        for (Persona p : persone) if (p != null) tutte.add(new Persona(p));
+        if (tutte.isEmpty()) throw new IllegalArgumentException("Persone non può contenere soltanto oggetti null");
+    }
+
+    public static String[] getDomande() {
         return domande.clone();
     }
 
@@ -100,12 +133,36 @@ public class Bot {
         raccogliNomiRicorsivo(n.getNo(), nomi);
     }
 
-    public Albero creaAlbero() {
-        List<String> domandeList = new ArrayList<>(Arrays.asList(domande));
-        Collections.shuffle(domandeList);
+    private String domandaMigliore(List<String> domande, List<Persona> personeCorrente) {
+        String domanda = "";
+        int entropia = Integer.MAX_VALUE;
+        for (String d : domande) {
+            List<Persona> si = interseca(personeCorrente, opzioni.get(d + "S"));
+            List<Persona> no = interseca(personeCorrente, opzioni.get(d + "N"));
+            int entr = Math.abs(si.size() - no.size());
+            if (entr == 0 && !si.isEmpty() && !no.isEmpty()){
+                return d;
+            }
+            if (entr < entropia) {
+                domanda = d;
+                entropia = entr;
+            }
+        }
+        return domanda;
+    }
 
-        String domandaRoot = domandeList.removeFirst();
-        Albero albero = new Albero(domandaRoot);
+    private void creaAlbero(boolean difficile) {
+        List<String> domandeList = new ArrayList<>(Arrays.asList(domande));
+        String domandaRoot;
+        if (difficile) {
+            domandaRoot = domandaMigliore(domandeList, tutte);
+            domandeList.remove(domandaRoot);
+        }
+        else {
+            Collections.shuffle(domandeList);
+            domandaRoot = domandeList.removeFirst();
+        }
+        albero = new Albero(domandaRoot);
 
         List<String> domandeUsate = new ArrayList<>();
         domandeUsate.add(domandaRoot);
@@ -116,15 +173,12 @@ public class Bot {
 
         List<String> confermateSI = new ArrayList<>();
         confermateSI.add(domandaRoot);
-        costruisciSottoAlbero(albero, albero.getRootId(), true,  personeSI, new ArrayList<>(domandeUsate), confermateSI);
+        costruisciSottoAlbero(albero.getRootId(), true,  personeSI, new ArrayList<>(domandeUsate), confermateSI, difficile);
 
-        costruisciSottoAlbero(albero, albero.getRootId(), false, personeNO, new ArrayList<>(domandeUsate), new ArrayList<>());
-
-        return albero;
+        costruisciSottoAlbero(albero.getRootId(), false, personeNO, new ArrayList<>(domandeUsate), new ArrayList<>(), difficile);
     }
 
-
-    private void costruisciSottoAlbero(Albero albero, int idPadre, boolean rispostaPadre, List<Persona> personeCorrente, List<String> domandeUsate, List<String> domandeConfermate) {
+    private void costruisciSottoAlbero(int idPadre, boolean rispostaPadre, List<Persona> personeCorrente, List<String> domandeUsate, List<String> domandeConfermate, boolean difficile) {
         // ramo morto: nessuna persona rimasta
         if (personeCorrente.isEmpty()) return;
 
@@ -134,7 +188,6 @@ public class Bot {
             return;
         }
 
-        // scegliamo una domanda random tra quelle non ancora usate
         List<String> disponibili = new ArrayList<>();
         for (String d : domande) {
             if (!domandeUsate.contains(d) && !categoriaGiaConfermata(d, domandeConfermate)) {
@@ -153,16 +206,20 @@ public class Bot {
             return;
         }
 
+        String domandaScelta = "";
 
-        Collections.shuffle(disponibili);
-        String domandaScelta = disponibili.getFirst();
+        // scegliamo una domanda tra quelle non ancora usate
+        if (!difficile) {
+            Collections.shuffle(disponibili);
+            domandaScelta = disponibili.getFirst();
+        }
+        else domandaScelta = domandaMigliore(disponibili, personeCorrente);
 
         List<Persona> tutteSI = opzioni.get(domandaScelta + "S");
         List<Persona> tutteNO = opzioni.get(domandaScelta + "N");
 
         List<Persona> filtroSI = interseca(personeCorrente, tutteSI);
         List<Persona> filtroNO = interseca(personeCorrente, tutteNO);
-
 
         int idNuovo = albero.inserisciDomanda(idPadre, domandaScelta, rispostaPadre);
 
@@ -177,8 +234,8 @@ public class Bot {
         // ramo no: la domanda non è confermata quindi domandeconfermate rimane invariata
         List<String> nuoveConformateNO = new ArrayList<>(domandeConfermate);
 
-        costruisciSottoAlbero(albero, idNuovo, true,  filtroSI, new ArrayList<>(nuoveUsate), nuoveConfermateSI);
-        costruisciSottoAlbero(albero, idNuovo, false, filtroNO, new ArrayList<>(nuoveUsate), nuoveConformateNO);
+        costruisciSottoAlbero(idNuovo, true,  filtroSI, new ArrayList<>(nuoveUsate), nuoveConfermateSI, difficile);
+        costruisciSottoAlbero(idNuovo, false, filtroNO, new ArrayList<>(nuoveUsate), nuoveConformateNO, difficile);
     }
 
     //serve per controllare se la domanda appartiene a una categoria gia risolta
@@ -205,7 +262,7 @@ public class Bot {
         if (categoria == null)
             for (String c : pelle) if (c.equals(domanda)) { categoria = pelle; break; }
 
-        //esempio: categoria calvi, occhiali ecc ecc...
+        //esempio: categoria calvi, occhiali ecc...
         if (categoria == null) return false;
 
         for (String confermata : domandeConfermate)
@@ -227,25 +284,7 @@ public class Bot {
         return risultato;
     }
 
-    private void inizializza() {
-        domande[0] = "è maschio?";
-        domande[1] = "ha i capelli castani?";
-        domande[2] = "ha i capelli neri?";
-        domande[3] = "ha i capelli biondi?";
-        domande[4] = "ha i capelli rossi?";
-        domande[5] = "ha i capelli bianchi?";
-        domande[6] = "ha la pelle bianca?";
-        domande[7] = "ha la pelle nera?";
-        domande[8] = "ha la pelle mulatta?";
-        domande[9] = "ha gli occhi marroni?";
-        domande[10] = "ha gli occhi blu?";
-        domande[11] = "ha gli occhi verdi?";
-        domande[12] = "ha gli occhiali?";
-        domande[13] = "ha i capelli lunghi?";
-        domande[14] = "ha la barba o i baffi?";
-        domande[15] = "ha il cappello?";
-        domande[16] = "è pelato?";
-
+    private void inizializza(boolean difficile) {
         for (String domanda : domande) {
             List<Persona> si = new ArrayList<>();
             List<Persona> no = new ArrayList<>();
@@ -256,6 +295,7 @@ public class Bot {
             opzioni.put(domanda + "S", si);
             opzioni.put(domanda + "N", no);
         }
+        creaAlbero(difficile);
     }
 
     private boolean corrisponde(Persona p, String domanda) {
@@ -279,5 +319,9 @@ public class Bot {
             case "è pelato?" -> p.isPelato();
             default -> throw new IllegalArgumentException("Domanda non riconosciuta: " + domanda);
         };
+    }
+
+    public Nodo getRoot() {
+        return albero.getRoot();
     }
 }

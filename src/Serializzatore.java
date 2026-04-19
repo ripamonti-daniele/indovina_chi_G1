@@ -55,7 +55,6 @@ public class Serializzatore {
         }
     }
 
-
     public static Bot deSerializzaBot(String percorso) {
         try {
             FileInputStream file = new FileInputStream(percorso);
