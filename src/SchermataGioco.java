@@ -8,12 +8,25 @@ import java.util.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Classe principale per la gestione dell'interfaccia grafica del gioco "Indovina Chi".
+ * Gestisce il menu principale, le modalità di gioco (persona vs persona e giocatore vs bot),
+ * il salvataggio e il caricamento delle partite.
+ */
 public class SchermataGioco extends JFrame {
     private final List<Persona> persone;
     private final Domanda[] domandePossibili;
     private Bot bot;
     private boolean difficile;
 
+    /**
+     * Costruttore della schermata di gioco.
+     * Inizializza la finestra principale e il menu di avvio.
+     *
+     * @param persone           lista di tutte le persone disponibili nel gioco
+     * @param domandePossibili  array delle domande che possono essere poste durante il gioco
+     * @throws IllegalArgumentException se domandePossibili è null o vuoto
+     */
     public SchermataGioco(List<Persona> persone, Domanda[] domandePossibili) {
         if (domandePossibili == null || domandePossibili.length == 0) {
             throw new IllegalArgumentException("Le domande non possono essere null o vuote");
@@ -32,6 +45,11 @@ public class SchermataGioco extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Inizializza il menu principale con i pulsanti per le diverse modalità di gioco.
+     * Crea l'interfaccia con sfondo personalizzato e quattro opzioni:
+     * gioca in persona, gioca contro il computer, carica partita salvata ed esci.
+     */
     private void inizializzaMenu() {
         getContentPane().removeAll();
 
@@ -117,6 +135,17 @@ public class SchermataGioco extends JFrame {
         repaint();
     }
 
+    /**
+     * Salva lo stato corrente di una partita in modalità persona vs persona.
+     *
+     * @param pg1      persona segreta del giocatore 1
+     * @param pg2      persona segreta del giocatore 2
+     * @param turno    numero del turno corrente (1 o 2)
+     * @param abbG1    lista delle carte abbattute dal giocatore 1
+     * @param abbG2    lista delle carte abbattute dal giocatore 2
+     * @param dfG1     lista delle domande fatte dal giocatore 1
+     * @param dfG2     lista delle domande fatte dal giocatore 2
+     */
     private void salvaPartitaInPersona(Persona pg1, Persona pg2, int turno, List<String> abbG1, List<String> abbG2, List<String> dfG1, List<String> dfG2) {
         Object[] stato = {"persona", pg1.getNome(), pg2.getNome(), turno, abbG1.toArray(new String[0]), abbG2.toArray(new String[0]), dfG1.toArray(new String[0]), dfG2.toArray(new String[0])};
 
@@ -129,6 +158,18 @@ public class SchermataGioco extends JFrame {
         }
     }
 
+    /**
+     * Salva lo stato corrente di una partita in modalità giocatore vs bot.
+     *
+     * @param pgGiocatore      persona segreta del giocatore
+     * @param pgBot            persona segreta del bot
+     * @param turno            numero del turno corrente (1 per giocatore, 2 per bot)
+     * @param abbGiocatore     lista delle carte abbattute dal giocatore
+     * @param abbBot           lista delle carte abbattute dal bot
+     * @param dfGiocatore      lista delle domande fatte dal giocatore
+     * @param nodoCorrente     nodo corrente dell'albero decisionale del bot
+     * @param difficile        true se la modalità è difficile, false altrimenti
+     */
     private void salvaPartitaBot(Persona pgGiocatore, Persona pgBot, int turno, List<String> abbGiocatore, List<String> abbBot, List<String> dfGiocatore, Nodo nodoCorrente, boolean difficile) {
         Object[] stato = {"bot", pgGiocatore.getNome(), pgBot.getNome(), turno, abbGiocatore.toArray(new String[0]), abbBot.toArray(new String[0]), dfGiocatore.toArray(new String[0]), nodoCorrente, difficile};
 
@@ -141,6 +182,11 @@ public class SchermataGioco extends JFrame {
         }
     }
 
+    /**
+     * Carica una partita salvata e ripristina lo stato del gioco.
+     * Determina automaticamente se si tratta di una partita persona vs persona
+     * o giocatore vs bot e chiama il metodo di ripristino appropriato.
+     */
     private void caricaPartita() {
         Object[] stato;
         try {
@@ -160,6 +206,11 @@ public class SchermataGioco extends JFrame {
         else if ("bot".equals(modalita)) ripristinaBot(stato);
     }
 
+    /**
+     * Ripristina una partita salvata in modalità persona vs persona.
+     *
+     * @param stato array contenente lo stato salvato della partita
+     */
     private void ripristinaInPersona(Object[] stato) {
         String nomeG1 = (String) stato[1];
         String nomeG2 = (String) stato[2];
@@ -179,6 +230,11 @@ public class SchermataGioco extends JFrame {
         avviaPartitaInPersona(pg1, pg2, turnoIniziale, new ArrayList<>(Arrays.asList(abbG1Array)), new ArrayList<>(Arrays.asList(abbG2Array)), new ArrayList<>(Arrays.asList(dfG1Array)), new ArrayList<>(Arrays.asList(dfG2Array)));
     }
 
+    /**
+     * Ripristina una partita salvata in modalità giocatore vs bot.
+     *
+     * @param stato array contenente lo stato salvato della partita
+     */
     private void ripristinaBot(Object[] stato) {
         if (stato.length < 9) {
             JOptionPane.showMessageDialog(this, "File di salvataggio bot non valido.", "Errore", JOptionPane.ERROR_MESSAGE);
@@ -214,6 +270,12 @@ public class SchermataGioco extends JFrame {
         avviaPartitaBot(pgGiocatore, pgBot, turnoIniziale, new ArrayList<>(Arrays.asList(abbattuteGiocatore)), new ArrayList<>(Arrays.asList(abbattuteBot)), new ArrayList<>(Arrays.asList(domandeFatteGiocatore)), nodoCorrente, bot, difficile);
     }
 
+    /**
+     * Cerca una persona nella lista delle persone disponibili per nome.
+     *
+     * @param nome nome della persona da cercare
+     * @return la Persona corrispondente, null se non trovata
+     */
     private Persona cercaPersona(String nome) {
         for (Persona p : persone) {
             if (p.getNome().equals(nome)) return p;
@@ -225,6 +287,11 @@ public class SchermataGioco extends JFrame {
     //  MODALITÀ IN PERSONA
     // -----------------------------------------------------------------
 
+    /**
+     * Inizializza una nuova partita in modalità persona vs persona.
+     * Chiede ai due giocatori di scegliere le loro persone segrete
+     * e avvia la partita.
+     */
     private void inizializzaInPersona() {
         Persona personaSegretaG1 = mostraSceltaPersona(1);
         if (personaSegretaG1 == null) return;
@@ -234,6 +301,18 @@ public class SchermataGioco extends JFrame {
         avviaPartitaInPersona(personaSegretaG1, personaSegretaG2, 1, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
+    /**
+     * Avvia o riprende una partita in modalità persona vs persona.
+     * Gestisce il turno dei giocatori, le domande, le risposte e le carte abbattute.
+     *
+     * @param personaSegretaG1  persona segreta del giocatore 1
+     * @param personaSegretaG2  persona segreta del giocatore 2
+     * @param turnoIniziale     turno iniziale (1 o 2)
+     * @param abbattuteG1       lista delle carte già abbattute dal giocatore 1
+     * @param abbattuteG2       lista delle carte già abbattute dal giocatore 2
+     * @param domandeFatteG1    lista delle domande già fatte dal giocatore 1
+     * @param domandeFatteG2    lista delle domande già fatte dal giocatore 2
+     */
     private void avviaPartitaInPersona(Persona personaSegretaG1, Persona personaSegretaG2, int turnoIniziale, List<String> abbattuteG1, List<String> abbattuteG2, List<String> domandeFatteG1, List<String> domandeFatteG2) {
         final int[] turno = {turnoIniziale};
 
@@ -403,6 +482,17 @@ public class SchermataGioco extends JFrame {
         repaint();
     }
 
+    /**
+     * Aggiorna la combo box con le domande disponibili per il giocatore corrente.
+     * Esclude le domande già fatte e quelle la cui categoria è stata confermata.
+     *
+     * @param turno             numero del giocatore corrente (1 o 2)
+     * @param domandeFatteG1    domande già fatte dal giocatore 1
+     * @param risposteG1        risposte ricevute dal giocatore 1
+     * @param domandeFatteG2    domande già fatte dal giocatore 2
+     * @param risposteG2        risposte ricevute dal giocatore 2
+     * @param comboDomande      combo box da aggiornare
+     */
     private void aggiornaCombo(int turno, List<String> domandeFatteG1, List<Boolean> risposteG1, List<String> domandeFatteG2, List<Boolean> risposteG2, JComboBox<String> comboDomande) {
         List<String> fatte;
         List<Boolean> risposte;
@@ -424,6 +514,11 @@ public class SchermataGioco extends JFrame {
         }
     }
 
+    /**
+     * Inizializza una nuova partita in modalità giocatore vs bot.
+     * Chiede al giocatore di scegliere la propria persona segreta,
+     * sceglie casualmente quella del bot e avvia la partita.
+     */
     private void inizializzaBot() {
         Persona personaSegreta = mostraSceltaPersona(1);
         if (personaSegreta == null) return;
@@ -431,6 +526,20 @@ public class SchermataGioco extends JFrame {
         avviaPartitaBot(personaSegreta, personaSegretaBot, 1, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), bot.getRoot(), bot, difficile);
     }
 
+    /**
+     * Avvia o riprende una partita in modalità giocatore vs bot.
+     * Gestisce i turni, le domande del giocatore e le mosse del bot.
+     *
+     * @param personaSegreta        persona segreta del giocatore
+     * @param personaSegretaBot     persona segreta del bot
+     * @param turnoIniziale         turno iniziale (1 per giocatore, 2 per bot)
+     * @param abbattuteGiocatore    carte già abbattute dal giocatore
+     * @param abbattuteBot          carte già abbattute dal bot
+     * @param domandeFatteGiocatore domande già fatte dal giocatore
+     * @param nodoIniziale          nodo iniziale dell'albero decisionale del bot
+     * @param bot                   istanza del bot (può essere null)
+     * @param difficile             true se la modalità è difficile
+     */
     private void avviaPartitaBot(Persona personaSegreta, Persona personaSegretaBot, int turnoIniziale, List<String> abbattuteGiocatore, List<String> abbattuteBot, List<String> domandeFatteGiocatore, Nodo nodoIniziale, Bot bot, boolean difficile) {
         getContentPane().removeAll();
         JPanel root = new JPanel(new BorderLayout());
@@ -581,6 +690,18 @@ public class SchermataGioco extends JFrame {
         repaint();
     }
 
+    /**
+     * Aggiorna lo stato dell'interfaccia utente in base al turno corrente.
+     * Abilita o disabilita i controlli e aggiorna il colore dell'header.
+     *
+     * @param turno             numero del turno (1 per giocatore, 2 per bot)
+     * @param comboDomande      combo box delle domande
+     * @param btnFaiDomanda     pulsante per fare una domanda
+     * @param btnIndovina       pulsante per tentare di indovinare
+     * @param btnSalva          pulsante per salvare la partita
+     * @param labelTurno        etichetta che mostra di chi è il turno
+     * @param headerLaterale    pannello header da colorare
+     */
     private void aggiornaUI(int turno, JComboBox<String> comboDomande, JButton btnFaiDomanda, JButton btnIndovina, JButton btnSalva, JLabel labelTurno, JPanel headerLaterale) {
         boolean turnoGiocatore = (turno == 1);
         comboDomande.setEnabled(turnoGiocatore);
@@ -592,6 +713,17 @@ public class SchermataGioco extends JFrame {
         headerLaterale.setBackground(turnoGiocatore ? new Color(30, 100, 200) : new Color(180, 60, 60));
     }
 
+    /**
+     * Esegue il turno del bot nella partita giocatore vs bot.
+     * Il bot può fare una domanda o tentare di indovinare.
+     *
+     * @param personaSegreta      persona segreta del giocatore
+     * @param cartaPerNomeBot     mappa delle carte del bot
+     * @param abbattuteBot        lista delle carte abbattute dal bot
+     * @param turno               array contenente il numero del turno corrente
+     * @param sceltaCorrente      array contenente il nodo corrente dell'albero decisionale
+     * @param pannelloLaterale    pannello laterale da modificare in caso di fine partita
+     */
     private void eseguiTurnoBot(Persona personaSegreta, Map<String, JPanel> cartaPerNomeBot, List<String> abbattuteBot, int[] turno, Nodo[] sceltaCorrente, JPanel pannelloLaterale) {
         if (sceltaCorrente[0] == null) return;
 
@@ -630,6 +762,13 @@ public class SchermataGioco extends JFrame {
         turno[0] = 1;
     }
 
+    /**
+     * Mostra una finestra di dialogo per permettere al giocatore di scegliere
+     * la propria persona segreta.
+     *
+     * @param numeroGiocatore numero del giocatore (1 o 2)
+     * @return la Persona scelta, null se il giocatore annulla la selezione
+     */
     private Persona mostraSceltaPersona(int numeroGiocatore) {
         final Persona[] sceltaP = {null};
 
@@ -677,6 +816,14 @@ public class SchermataGioco extends JFrame {
         return sceltaP[0];
     }
 
+    /**
+     * Crea una griglia di carte rappresentanti tutte le persone del gioco.
+     * Ogni carta mostra l'immagine della persona e il tooltip con le sue caratteristiche.
+     *
+     * @param cartaPerNome mappa che associa il nome della persona al suo pannello carta
+     *                     (può essere null se non serve mantenere i riferimenti)
+     * @return il pannello contenente la griglia di carte
+     */
     private JPanel creaGriglia(Map<String, JPanel> cartaPerNome) {
         JPanel griglia = new JPanel(new GridLayout(4, 7, 8, 8));
         griglia.setOpaque(false);
@@ -703,6 +850,12 @@ public class SchermataGioco extends JFrame {
         return griglia;
     }
 
+    /**
+     * Abbatte una carta nella griglia, rimuovendo l'immagine e colorandola di giallo.
+     *
+     * @param nome           nome della persona la cui carta deve essere abbattuta
+     * @param cartaPerNome   mappa che associa i nomi delle persone ai pannelli carta
+     */
     private void abbattiCarta(String nome, Map<String, JPanel> cartaPerNome) {
         JPanel carta = cartaPerNome.get(nome);
         if (carta == null) return;
@@ -715,6 +868,13 @@ public class SchermataGioco extends JFrame {
         carta.repaint();
     }
 
+    /**
+     * Gestisce la fine della partita mostrando le opzioni per rigiocare
+     * o tornare al menu principale.
+     *
+     * @param pannelloLaterale pannello laterale da modificare con i nuovi pulsanti
+     * @param bot              true se la partita era contro il bot, false se era persona vs persona
+     */
     private void finePartita(JPanel pannelloLaterale, boolean bot) {
         pannelloLaterale.removeAll();
         pannelloLaterale.setLayout(new BoxLayout(pannelloLaterale, BoxLayout.Y_AXIS));
@@ -736,6 +896,14 @@ public class SchermataGioco extends JFrame {
         pannelloLaterale.repaint();
     }
 
+    /**
+     * Crea una colonna con titolo e griglia di carte.
+     *
+     * @param titolo   titolo della colonna (es. "Giocatore 1")
+     * @param griglia  pannello contenente la griglia di carte
+     * @param bordo    true se aggiungere un bordo destro alla colonna
+     * @return il pannello colonna completo
+     */
     private JPanel creaColonna(String titolo, JPanel griglia, boolean bordo) {
         JPanel colonna = new JPanel(new BorderLayout());
         colonna.setOpaque(false);
@@ -747,6 +915,13 @@ public class SchermataGioco extends JFrame {
         return colonna;
     }
 
+    /**
+     * Crea un pulsante stilizzato per il pannello laterale.
+     *
+     * @param testo   testo da visualizzare sul pulsante
+     * @param sfondo  colore di sfondo del pulsante
+     * @return il pulsante creato
+     */
     private JButton creaBottoneLaterale(String testo, Color sfondo) {
         JButton btn = new JButton(testo);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -757,7 +932,15 @@ public class SchermataGioco extends JFrame {
         return btn;
     }
 
-    //la categoria è "confermata" solo se quella domanda ha avuto risposta si
+    /**
+     * Verifica se una categoria di domanda è stata confermata (ha ricevuto risposta positiva).
+     * Una categoria è confermata solo se una domanda di quella categoria ha ricevuto risposta "sì".
+     *
+     * @param domanda   la domanda da verificare
+     * @param fatte     lista delle domande già fatte
+     * @param risposte  lista delle risposte ricevute
+     * @return true se la categoria è confermata, false altrimenti
+     */
     private boolean categoriaConfermata(Domanda domanda, List<String> fatte, List<Boolean> risposte) {
         if (domanda.getCategoria() == Domanda.Categoria.NESSUNA) return false;
         for (int i = 0; i < fatte.size(); i++) {
@@ -767,12 +950,24 @@ public class SchermataGioco extends JFrame {
         return false;
     }
 
+    /**
+     * Raccoglie i nomi di tutte le persone raggiungibili a partire da un nodo dell'albero.
+     *
+     * @param n nodo da cui partire
+     * @return lista dei nomi delle persone raggiungibili
+     */
     private List<String> personeRaggiungibili(Nodo n) {
         List<String> nomi = new ArrayList<>();
         raccogliPersone(n, nomi);
         return nomi;
     }
 
+    /**
+     * Metodo ricorsivo per raccogliere i nomi delle persone da un albero di nodi.
+     *
+     * @param n     nodo corrente
+     * @param nomi  lista in cui aggiungere i nomi trovati
+     */
     private void raccogliPersone(Nodo n, List<String> nomi) {
         if (n == null) return;
         if (n instanceof NodoPersona np) {
@@ -783,6 +978,15 @@ public class SchermataGioco extends JFrame {
         raccogliPersone(n.getNo(), nomi);
     }
 
+    /**
+     * Carica e scala un'immagine dal file system.
+     *
+     * @param nome       nome della persona (usato per costruire il percorso del file)
+     * @param larghezza  larghezza desiderata dell'immagine scalata
+     * @param altezza    altezza desiderata dell'immagine scalata
+     * @return ImageIcon contenente l'immagine scalata
+     * @throws IllegalArgumentException se il percorso dell'immagine non esiste
+     */
     private ImageIcon getImmagine(String nome, int larghezza, int altezza) {
         String percorso = "img/" + nome.trim().toLowerCase() + ".png";
         Path path = Paths.get(percorso);
