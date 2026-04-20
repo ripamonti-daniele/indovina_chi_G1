@@ -1,3 +1,9 @@
+/**
+ * Crea e restituisce la lista completa delle {@link Persona} predefinite del gioco,
+ * ognuna con le proprie caratteristiche fisiche.
+ *
+ * @return la lista di tutte le {@link Persona} disponibili nel gioco
+ */
 List<Persona> creaPersone() {
     List<Persona> persone = new ArrayList<>();
     persone.add(new Persona("patrick", ColoriCrapa.CASTANO, ColoriOch.VERDE, ColoriPelle.BIANCO, false, true, true, true, false, false));
@@ -31,6 +37,16 @@ List<Persona> creaPersone() {
     return persone;
 }
 
+/**
+ * Punto di ingresso dell'applicazione.
+ * <p>
+ * Imposta la proprietà di sistema {@code sun.java2d.uiScale} a {@code "1"} per
+ * mantenere le immagini ad alta qualità su tutti i monitor, quindi tenta di
+ * caricare la lista delle persone dal file serializzato {@code files/persone.ser}.
+ * In caso di errore, ricrea la lista tramite {@link #creaPersone()}.
+ * Infine, avvia la {@link SchermataGioco} passando le persone e le domande disponibili.
+ * </p>
+ */
 void main() {
     System.setProperty("sun.java2d.uiScale", "1"); //mantiene le immagini a qualità alta su tutti i monitor
 
