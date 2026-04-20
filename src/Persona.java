@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Persona implements Serializable {
     @Serial
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 5L;
 
     private String nome;
     private ColoriCrapa coloreCapelli;
@@ -19,13 +19,7 @@ public class Persona implements Serializable {
     private boolean barba;
     private boolean cappello;
     private boolean pelato;
-    private String percorsoImmagine;
     private final static List<String> nomi = new ArrayList<>();
-
-    public Persona(String nome, ColoriCrapa cc, ColoriOch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato, String percorsoImmagine) {
-        this(nome, cc, co, cp, occhiali, sesso, capelliLunghi, barba, cappello, pelato);
-        setPercorsoImmagine(percorsoImmagine);
-    }
 
     public Persona(String nome, ColoriCrapa cc, ColoriOch co, ColoriPelle cp, boolean occhiali, boolean sesso, boolean capelliLunghi, boolean barba, boolean cappello, boolean pelato) {
         setNome(nome);
@@ -51,26 +45,6 @@ public class Persona implements Serializable {
         this.barba = p.barba;
         this.cappello = p.cappello;
         this.pelato = p.pelato;
-        this.percorsoImmagine = p.percorsoImmagine;
-    }
-
-    private void setPercorsoImmagine(String percorso) {
-        if (percorso == null || percorso.isBlank())
-            throw new IllegalArgumentException("Il percorso non può essere vuoto");
-        this.percorsoImmagine = percorso;
-    }
-
-    public String getPercorsoImmagine() {
-        return percorsoImmagine;
-    }
-
-    public ImageIcon getImmagine() {
-        return new ImageIcon(percorsoImmagine);
-    }
-    //utilizzo per swing
-    public ImageIcon getImmagine(int larghezza, int altezza) {
-        Image scalata = getImmagine().getImage().getScaledInstance(larghezza, altezza, Image.SCALE_SMOOTH);
-        return new ImageIcon(scalata);
     }
 
     public String getNome() {
@@ -165,6 +139,7 @@ public class Persona implements Serializable {
         return new ArrayList<>(nomi);
     }
 
+    @Serial
     private Object readResolve() {
         if (!nomi.contains(this.nome)) nomi.add(this.nome);
         return this;

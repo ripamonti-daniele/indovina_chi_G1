@@ -1,5 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.*;
 import java.util.List;
@@ -8,10 +11,10 @@ import java.util.Map;
 public class SchermataGioco extends JFrame {
 
     private List<Persona> persone;
-    private String[] domandePossibili;
+    private Domanda[] domandePossibili;
     private Nodo scelta;
 
-    public SchermataGioco(List<Persona> persone, String[] domandePossibili) {
+    public SchermataGioco(List<Persona> persone, Domanda[] domandePossibili) {
         if (domandePossibili == null || domandePossibili.length == 0) throw new IllegalArgumentException("Le domande non possono essere null o vuote");
         this.domandePossibili = domandePossibili;
         this.persone = persone;
@@ -275,9 +278,10 @@ public class SchermataGioco extends JFrame {
         labelTurno.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
         // Costruisce la combobox filtrata in base alle domande già fatte
-        List<String> domandeDisponibili = new ArrayList<>(Arrays.asList(domandePossibili));
-        List<String> dfAttuale = (turnoIniziale == 1) ? domandeFatteG1 : domandeFatteG2;
-        domandeDisponibili.removeAll(dfAttuale);
+        List<String> domandeDisponibili = new ArrayList<>();
+        for (Domanda d : domandePossibili) {
+            domandeDisponibili.add(d.getTesto());
+        }
         JComboBox<String> comboDomande = new JComboBox<>(domandeDisponibili.toArray(new String[0]));
         comboDomande.setMaximumSize(new Dimension(200, 28));
         comboDomande.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -336,10 +340,10 @@ public class SchermataGioco extends JFrame {
                 labelTurno.setText("Turno: Giocatore " + turno[0]);
 
                 // aggiorna la combobox per il nuovo giocatore
-                List<String> dfNuovo = (turno[0] == 1) ? domandeFatteG1 : domandeFatteG2;
+                List<String> fatte = (turno[0] == 1) ? domandeFatteG1 : domandeFatteG2;
                 comboDomande.removeAllItems();
-                for (String d : domandePossibili) {
-                    if (!dfNuovo.contains(d)) comboDomande.addItem(d);
+                for (Domanda d : domandePossibili) {
+                    if (!fatte.contains(d.getTesto()) && !categoriaConfermata(d, fatte)) comboDomande.addItem(d.getTesto());
                 }
 
                 JOptionPane.showMessageDialog(this, "Risposta sbagliata! Tocca al Giocatore " + turno[0], "Sbagliato!", JOptionPane.WARNING_MESSAGE);
@@ -383,9 +387,9 @@ public class SchermataGioco extends JFrame {
             // ricostruisce combobox del giocatore che ha appena fatto la domanda
             List<String> domandeGiocatore = (turnoCorrente == 1) ? domandeFatteG1 : domandeFatteG2;
             comboDomande.removeAllItems();
-            for (String d : domandePossibili) {
-                if (!domandeGiocatore.contains(d) && !(rispostaCorretta && categoriaGiaConfermata(d, domandeGiocatore))) {
-                    comboDomande.addItem(d);
+            for (Domanda d : domandePossibili) {
+                if (!domandeGiocatore.contains(d) && !(rispostaCorretta && categoriaConfermata(d, domandeGiocatore))) {
+                    comboDomande.addItem(d.toString());
                 }
             }
 
@@ -395,8 +399,8 @@ public class SchermataGioco extends JFrame {
             // Ricarica la combo con le domande del nuovo giocatore corrente
             List<String> dfNuovo = (turno[0] == 1) ? domandeFatteG1 : domandeFatteG2;
             comboDomande.removeAllItems();
-            for (String d : domandePossibili) {
-                if (!dfNuovo.contains(d)) comboDomande.addItem(d);
+            for (Domanda d : domandePossibili) {
+                if (!dfNuovo.contains(d)) comboDomande.addItem(d.toString());
             }
         });
 
@@ -456,7 +460,7 @@ public class SchermataGioco extends JFrame {
         labelTurno.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
 
         // Combobox filtrata con domande già fatte
-        List<String> domandeDisp = new ArrayList<>(Arrays.asList(domandePossibili));
+        List<Domanda> domandeDisp = new ArrayList<>(Arrays.asList(domandePossibili));
         domandeDisp.removeAll(domandeFatteGiocatore);
         JComboBox<String> comboDomande = new JComboBox<>(domandeDisp.toArray(new String[0]));
         comboDomande.setMaximumSize(new Dimension(200, 28));
@@ -475,7 +479,7 @@ public class SchermataGioco extends JFrame {
         cartaSegreta.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 2));
         cartaSegreta.setMaximumSize(new Dimension(110, 150));
         cartaSegreta.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel imgSegreta = new JLabel(personaSegreta.getImmagine(90, 110));
+        JLabel imgSegreta = new JLabel(getImmagine(personaSegreta.getNome(), 90, 110));
         imgSegreta.setHorizontalAlignment(SwingConstants.CENTER);
         cartaSegreta.add(imgSegreta, BorderLayout.CENTER);
 
@@ -514,7 +518,8 @@ public class SchermataGioco extends JFrame {
 
             domandeFatteGiocatore.add(domanda);
 
-            boolean risposta = rispondeDomanda(personaSegretaBot, domanda);
+            Domanda d = Domanda.fromTesto(domanda);
+            boolean risposta = d.corrisponde(personaSegretaBot);
             JOptionPane.showMessageDialog(this, "Bot risponde: " + (risposta ? "Sì" : "No"), "Risposta del bot", JOptionPane.INFORMATION_MESSAGE);
 
             for (Persona p : persone) {
@@ -525,8 +530,8 @@ public class SchermataGioco extends JFrame {
             }
 
             for (int i = comboDomande.getItemCount() - 1; i >= 0; i--) {
-                String d = comboDomande.getItemAt(i);
-                if (risposta && categoriaGiaConfermata(d, List.of(domanda))) comboDomande.removeItem(d);
+                String dom = comboDomande.getItemAt(i);
+                if (risposta && categoriaConfermata(Domanda.valueOf(dom), List.of(domanda))) comboDomande.removeItem(d);
             }
             comboDomande.removeItem(domanda);
 
@@ -569,51 +574,44 @@ public class SchermataGioco extends JFrame {
 
     //  TURNO BOT
 
-    private void eseguiTurnoBot(Persona personaSegreta, Map<String, JPanel> cartaPerNomeBot,
-                                List<String> abbattuteBot, int[] turno,
-                                Runnable aggiornaUI, JPanel pannelloLaterale) {
+    private void eseguiTurnoBot(Persona personaSegreta, Map<String, JPanel> cartaPerNomeBot, List<String> abbattuteBot, int[] turno, Runnable aggiornaUI, JPanel pannelloLaterale) {
         if (scelta == null) return;
 
-        if (scelta.getPersona() != null) {
-            String tentativo = scelta.getPersona().getNome();
+        if (scelta instanceof NodoPersona np) {
+            String tentativo = np.getPersona().getNome();
             if (tentativo.equals(personaSegreta.getNome())) {
                 JOptionPane.showMessageDialog(this, "Il bot ha indovinato! Hai perso.\nLa tua persona era: " + personaSegreta.getNome(), "Il bot ha vinto!", JOptionPane.INFORMATION_MESSAGE);
-            } else {
+            }
+            else {
                 JOptionPane.showMessageDialog(this, "Il bot ha tentato con \"" + tentativo + "\" ma ha sbagliato!\nTocca a te.", "Bot sbagliato", JOptionPane.INFORMATION_MESSAGE);
             }
             finePartita(pannelloLaterale);
             return;
         }
 
-        String domandaBot = scelta.getDomanda();
-        int sceltaUtente = JOptionPane.showOptionDialog(this,
-                "Il bot ti chiede:\n\"" + domandaBot + "\"",
-                "Domanda del Bot", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                null, new String[]{"Sì", "No"}, "Sì");
-        if (sceltaUtente == JOptionPane.CLOSED_OPTION) return;
+        if (!(scelta instanceof NodoDomanda nd)) return;
+        String domandaBot = nd.getDomanda();
 
-        boolean rispostaGiocatore = (sceltaUtente == 0);
-        boolean rispostaCorretta  = rispondeDomanda(personaSegreta, domandaBot);
+        int sceltaUtente;
+        boolean rispostaGiocatore;
+        boolean rispostaCorretta = Domanda.fromTesto(domandaBot).corrisponde(personaSegreta);
 
-        while (rispostaGiocatore != rispostaCorretta) {
-            JOptionPane.showMessageDialog(this, "Risposta sbagliata! Devi rispondere correttamente.", "Errore", JOptionPane.ERROR_MESSAGE);
-            sceltaUtente = JOptionPane.showOptionDialog(this,
-                    "Il bot ti chiede:\n\"" + domandaBot + "\"",
-                    "Domanda del Bot", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    null, new String[]{"Sì", "No"}, "Sì");
+        do {
+            sceltaUtente = JOptionPane.showOptionDialog(this, "Il bot ti chiede:\n\"" + domandaBot + "\"", "Domanda del Bot", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[]{"Sì", "No"}, "Sì");
             if (sceltaUtente == JOptionPane.CLOSED_OPTION) return;
             rispostaGiocatore = (sceltaUtente == 0);
-        }
+            if (rispostaGiocatore != rispostaCorretta) {
+                JOptionPane.showMessageDialog(this, "Risposta sbagliata! Devi rispondere correttamente.", "Errore", JOptionPane.ERROR_MESSAGE);
+            }
+        } while (rispostaGiocatore != rispostaCorretta);
 
         Nodo ramoScartato = rispostaGiocatore ? scelta.getNo() : scelta.getSi();
-        List<String> daAbbattere = personeRaggiungibili(ramoScartato);
-        for (String nome : daAbbattere) {
+        for (String nome : personeRaggiungibili(ramoScartato)) {
             abbattiCarta(nome, cartaPerNomeBot);
             if (!abbattuteBot.contains(nome)) abbattuteBot.add(nome);
         }
 
         scelta = rispostaGiocatore ? scelta.getSi() : scelta.getNo();
-
         turno[0] = 1;
         aggiornaUI.run();
     }
@@ -638,7 +636,7 @@ public class SchermataGioco extends JFrame {
             carta.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
             carta.setPreferredSize(new Dimension(80, 100));
 
-            JLabel immagine = new JLabel(persona.getImmagine(65, 80));
+            JLabel immagine = new JLabel(getImmagine(persona.getNome(), 65, 80));
             immagine.setHorizontalAlignment(SwingConstants.CENTER);
             carta.add(immagine, BorderLayout.CENTER);
 
@@ -694,7 +692,7 @@ public class SchermataGioco extends JFrame {
             carta.setPreferredSize(new Dimension(80, 100));
 
 
-            JLabel immagine = new JLabel(persona.getImmagine(65, 80));
+            JLabel immagine = new JLabel(getImmagine(persona.getNome(), 65, 80));
             immagine.setHorizontalAlignment(SwingConstants.CENTER);
             carta.add(immagine, BorderLayout.CENTER);
 
@@ -763,20 +761,12 @@ public class SchermataGioco extends JFrame {
 
 
 
-    private boolean categoriaGiaConfermata(String domanda, List<String> domandeConfermate) {
-        String[] capelli = {"ha i capelli castani?", "ha i capelli neri?", "ha i capelli biondi?", "ha i capelli rossi?", "ha i capelli bianchi?"};
-        String[] occhi   = {"ha gli occhi marroni?", "ha gli occhi blu?", "ha gli occhi verdi?"};
-        String[] pelle   = {"ha la pelle bianca?", "ha la pelle nera?", "ha la pelle mulatta?"};
-
-        String[] categoria = null;
-        for (String c : capelli) if (c.equals(domanda)) { categoria = capelli; break; }
-        if (categoria == null) for (String c : occhi) if (c.equals(domanda)) { categoria = occhi; break; }
-        if (categoria == null) for (String c : pelle) if (c.equals(domanda)) { categoria = pelle; break; }
-        if (categoria == null) return false;
-
-        for (String confermata : domandeConfermate)
-            for (String c : categoria)
-                if (c.equals(confermata)) return true;
+    private boolean categoriaConfermata(Domanda domanda, List<String> fatte) {
+        if (domanda.getCategoria() == Domanda.Categoria.NESSUNA) return false;
+        for (String f : fatte) {
+            Domanda df = Domanda.fromTesto(f);
+            if (df.getCategoria() == domanda.getCategoria()) return true;
+        }
         return false;
     }
 
@@ -788,7 +778,10 @@ public class SchermataGioco extends JFrame {
 
     private void raccogliPersone(Nodo n, List<String> nomi) {
         if (n == null) return;
-        if (n.getPersona() != null) { nomi.add(n.getPersona().getNome()); return; }
+        if (n instanceof NodoPersona np) {
+            nomi.add(np.getPersona().getNome());
+            return;
+        }
         raccogliPersone(n.getSi(), nomi);
         raccogliPersone(n.getNo(), nomi);
     }
@@ -814,5 +807,13 @@ public class SchermataGioco extends JFrame {
             case "è pelato?"               -> p.isPelato();
             default -> false;
         };
+    }
+
+    private ImageIcon getImmagine(String nome, int larghezza, int altezza) {
+        String percorso = "img/" + nome.trim().toLowerCase() + ".png";
+        Path path = Paths.get(percorso);
+        if (!Files.exists(path)) throw new IllegalArgumentException("Percorso non trovato: " + path);
+        Image scalata = new ImageIcon(percorso).getImage().getScaledInstance(larghezza, altezza, Image.SCALE_SMOOTH);
+        return new ImageIcon(scalata);
     }
 }

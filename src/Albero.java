@@ -7,57 +7,57 @@ public class Albero implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final Nodo root;
+    private final NodoDomanda root;
+    private final Map<Integer, Nodo> indice = new HashMap<>();
 
     public Albero(String domandaRoot) {
-        root = new Nodo(domandaRoot);
+        root = new NodoDomanda(domandaRoot);
+        indice.put(root.getId(), root);
     }
 
     public int getRootId() {
         return root.getId();
     }
 
-    public int inserisciDomanda(int idRoot, String domanda, boolean si) {
-        return root.aggiungiNodo(idRoot, domanda, si).getId();
-    }
-
-    public int inserisciPersona(int idRoot, Persona persona, boolean si) {
-        return root.aggiungiPersona(idRoot, persona, si).getId();
-    }
-
-    public Nodo getRoot() {
+    public NodoDomanda getRoot() {
         return root;
+    }
+
+    public int inserisciDomanda(int idPadre, String domanda, boolean si) {
+        NodoDomanda nd = new NodoDomanda(domanda);
+        collegaNodo(idPadre, nd, si);
+        return nd.getId();
+    }
+
+    public int inserisciPersona(int idPadre, Persona persona, boolean si) {
+        NodoPersona np = new NodoPersona(persona);
+        collegaNodo(idPadre, np, si);
+        return np.getId();
+    }
+
+    private void collegaNodo(int idPadre, Nodo nuovo, boolean si) {
+        Nodo padre = indice.get(idPadre);
+        if (padre == null) throw new IllegalArgumentException("Nessun nodo con id " + idPadre);
+        if (!(padre instanceof NodoDomanda)) throw new IllegalStateException("Solo i nodi domanda possono avere figli");
+        if (si) padre.setSi(nuovo);
+        else padre.setNo(nuovo);
+        indice.put(nuovo.getId(), nuovo);
     }
 
     public Map<Integer, String> getDomande() {
         Map<Integer, String> mappa = new HashMap<>();
-        trovaDomande(root, mappa);
-        return mappa;
-    }
-
-    private void trovaDomande(Nodo n, Map<Integer, String> mappa) {
-        if (n == null) return;
-        if (n.getDomanda() != null) {
-            mappa.put(n.getId(), n.getDomanda());
-            trovaDomande(n.getSi(), mappa);
-            trovaDomande(n.getNo(), mappa);
+        for (Nodo n : indice.values()) {
+            if (n instanceof NodoDomanda nd) mappa.put(nd.getId(), nd.getDomanda());
         }
+        return mappa;
     }
 
     public Map<Integer, Persona> getPersone() {
         Map<Integer, Persona> mappa = new HashMap<>();
-        trovaPersone(root, mappa);
-        return mappa;
-    }
-
-    private void trovaPersone(Nodo n, Map<Integer, Persona> mappa) {
-        if (n == null) return;
-        if (n.getPersona() != null) {
-            mappa.put(n.getId(), n.getPersona());
-            return;
+        for (Nodo n : indice.values()) {
+            if (n instanceof NodoPersona np) mappa.put(np.getId(), np.getPersona());
         }
-        trovaPersone(n.getSi(), mappa);
-        trovaPersone(n.getNo(), mappa);
+        return mappa;
     }
 
     @Override
