@@ -68,10 +68,6 @@ public class Bot implements Serializable {
         return d.corrisponde(personaggioDaScoprire);
     }
 
-//    public static boolean rispostaSuPersona(Domanda d, Persona p) {
-//        return d.corrisponde(p);
-//    }
-
     public String getDomandaCorrente() {
         if (nodoCorrente instanceof NodoDomanda nd) return nd.getDomanda();
         return null;
@@ -83,28 +79,6 @@ public class Bot implements Serializable {
         if (nodoCorrente instanceof NodoPersona np) return np.getPersona();
         return null;
     }
-
-//    public List<String> personeEliminate(boolean risposta) {
-//        if (nodoCorrente == null) return new ArrayList<>();
-//        Nodo scartato = risposta ? nodoCorrente.getNo() : nodoCorrente.getSi();
-//        return raccogliNomi(scartato);
-//    }
-//
-//    private List<String> raccogliNomi(Nodo n) {
-//        List<String> nomi = new ArrayList<>();
-//        raccogliNomiRicorsivo(n, nomi);
-//        return nomi;
-//    }
-//
-//    private void raccogliNomiRicorsivo(Nodo n, List<String> nomi) {
-//        if (n == null) return;
-//        if (n instanceof NodoPersona np) {
-//            nomi.add(np.getPersona().getNome());
-//            return;
-//        }
-//        raccogliNomiRicorsivo(n.getSi(), nomi);
-//        raccogliNomiRicorsivo(n.getNo(), nomi);
-//    }
 
     private Domanda domandaMigliore(List<Domanda> disponibili, List<Persona> personeCorrente) {
         Domanda migliore = null;
