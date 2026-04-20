@@ -1,3 +1,11 @@
+/**
+ * Colori degli occhi disponibili per una {@link Persona}.
+ */
 public enum ColoriOch {
-    MARRONE, BLU, VERDE
+    /** Occhi marroni. */
+    MARRONE,
+    /** Occhi blu. */
+    BLU,
+    /** Occhi verdi. */
+    VERDE
 }

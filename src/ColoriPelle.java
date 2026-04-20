@@ -1,3 +1,11 @@
+/**
+ * Colori della pelle disponibili per una {@link Persona}.
+ */
 public enum ColoriPelle {
-    BIANCO, MULATTO, NERO
+    /** Pelle bianca. */
+    BIANCO,
+    /** Pelle mulatta. */
+    MULATTO,
+    /** Pelle nera. */
+    NERO
 }
