@@ -13,8 +13,9 @@ public class SchermataGioco extends JFrame {
     private final Domanda[] domandePossibili;
 
     public SchermataGioco(List<Persona> persone, Domanda[] domandePossibili) {
-        if (domandePossibili == null || domandePossibili.length == 0)
+        if (domandePossibili == null || domandePossibili.length == 0) {
             throw new IllegalArgumentException("Le domande non possono essere null o vuote");
+        }
         this.domandePossibili = domandePossibili;
         this.persone = persone;
         setTitle("IndovinaChi");
@@ -37,25 +38,17 @@ public class SchermataGioco extends JFrame {
                 super.paintComponent(g);
                 int larghezzaPanel = getWidth(), pannelloAltezza = getHeight();
                 int larghezzaImg = image.getWidth(null), immagineAltezza = image.getHeight(null);
-                double scala = Math.max((double) larghezzaPanel / larghezzaImg,
-                        (double) pannelloAltezza / immagineAltezza);
+                double scala = Math.max((double) larghezzaPanel / larghezzaImg, (double) pannelloAltezza / immagineAltezza);
                 int larghezzaScalata = (int)(larghezzaImg * scala);
                 int altezzaScalata   = (int)(immagineAltezza * scala);
-                g.drawImage(image,
-                        (larghezzaPanel - larghezzaScalata) / 2,
-                        (pannelloAltezza - altezzaScalata) / 2,
-                        larghezzaScalata, altezzaScalata, this);
+                g.drawImage(image, (larghezzaPanel - larghezzaScalata) / 2, (pannelloAltezza - altezzaScalata) / 2, larghezzaScalata, altezzaScalata, this);
             }
         };
 
-        JButton bottone1      = new JButtonCustom("Gioca in persona",
-                new Color(34, 139, 34),  new Color(60, 179, 60));
-        JButton bottone2      = new JButtonCustom("Gioca contro il computer",
-                new Color(30, 144, 255), new Color(100, 180, 255));
-        JButton bottoneCarica = new JButtonCustom("Carica partita salvata",
-                new Color(160, 100, 0),  new Color(210, 140, 30));
-        JButton bottone3      = new JButtonCustom("Esci",
-                new Color(220, 20, 60),  new Color(255, 60, 80));
+        JButton bottone1      = new JButtonCustom("Gioca in persona", new Color(34, 139, 34),  new Color(60, 179, 60));
+        JButton bottone2      = new JButtonCustom("Gioca contro il computer", new Color(30, 144, 255), new Color(100, 180, 255));
+        JButton bottoneCarica = new JButtonCustom("Carica partita salvata", new Color(160, 100, 0),  new Color(210, 140, 30));
+        JButton bottone3      = new JButtonCustom("Esci", new Color(220, 20, 60),  new Color(255, 60, 80));
 
         JPanel btnPanel = new JPanel(new GridLayout(1, 4, 20, 0));
         btnPanel.setOpaque(false);
@@ -72,8 +65,8 @@ public class SchermataGioco extends JFrame {
         bottone2.addActionListener(_ -> {
             String[] opzioni = {"Normale", "Difficile"};
             int sceltaDiff = JOptionPane.showOptionDialog(null, "Scegli la difficoltà", "Difficoltà",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    null, opzioni, opzioni[0]);
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, opzioni, opzioni[0]);
+
             if (sceltaDiff == JOptionPane.CLOSED_OPTION) return;
 
             Bot bot;
@@ -156,11 +149,9 @@ public class SchermataGioco extends JFrame {
         };
         try {
             Serializzatore.serializzaPartita(stato);
-            JOptionPane.showMessageDialog(this, "Partita salvata!", "Salvataggio",
-                    JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Partita salvata!", "Salvataggio", JOptionPane.INFORMATION_MESSAGE);
         } catch (RuntimeException e) {
-            JOptionPane.showMessageDialog(this, "Errore nel salvataggio:\n" + e.getMessage(),
-                    "Errore", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Errore nel salvataggio:\n" + e.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -169,18 +160,20 @@ public class SchermataGioco extends JFrame {
         try {
             stato = Serializzatore.deSerializzaPartita();
         } catch (RuntimeException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Caricamento",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Caricamento", JOptionPane.WARNING_MESSAGE);
             return;
         }
         if (stato == null || stato.length < 8) {
-            JOptionPane.showMessageDialog(this, "File di salvataggio non valido.",
-                    "Errore", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "File di salvataggio non valido.", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
         String modalita = (String) stato[0];
-        if ("persona".equals(modalita))   ripristinaInPersona(stato);
-        else if ("bot".equals(modalita))  ripristinaBot(stato);
+        if ("persona".equals(modalita)) {
+            ripristinaInPersona(stato);
+        }
+        else if ("bot".equals(modalita)) {
+            ripristinaBot(stato);
+        }
     }
 
     private void ripristinaInPersona(Object[] stato) {
@@ -195,8 +188,7 @@ public class SchermataGioco extends JFrame {
         Persona pg1 = cercaPersona(nomeG1);
         Persona pg2 = cercaPersona(nomeG2);
         if (pg1 == null || pg2 == null) {
-            JOptionPane.showMessageDialog(this, "Personaggi del salvataggio non trovati.",
-                    "Errore", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Personaggi del salvataggio non trovati.", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -224,8 +216,7 @@ public class SchermataGioco extends JFrame {
         Persona pgGiocatore = cercaPersona(nomeGiocatore);
         Persona pgBot       = cercaPersona(nomeBot);
         if (pgGiocatore == null || pgBot == null) {
-            JOptionPane.showMessageDialog(this, "Personaggi del salvataggio non trovati.",
-                    "Errore", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Personaggi del salvataggio non trovati.", "Errore", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -260,8 +251,7 @@ public class SchermataGioco extends JFrame {
         Persona personaSegretaG2 = mostraSceltaPersona(2);
         if (personaSegretaG2 == null) return;
 
-        avviaPartitaInPersona(personaSegretaG1, personaSegretaG2, 1,
-                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        avviaPartitaInPersona(personaSegretaG1, personaSegretaG2, 1, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     private void avviaPartitaInPersona(Persona personaSegretaG1, Persona personaSegretaG2,
@@ -331,20 +321,30 @@ public class SchermataGioco extends JFrame {
         pannelloPrincipale.add(pannelloLaterale, BorderLayout.EAST);
 
         Runnable aggiornaCombo = () -> {
-            List<String>  fatte    = (turno[0] == 1) ? domandeFatteG1 : domandeFatteG2;
-            List<Boolean> risposte = (turno[0] == 1) ? risposteG1     : risposteG2;
+            List<String>  fatte;
+            List<Boolean> risposte;
+
+            if (turno[0] == 1) {
+                fatte    = domandeFatteG1;
+                risposte = risposteG1;
+            } else {
+                fatte    = domandeFatteG2;
+                risposte = risposteG2;
+            }
+
             comboDomande.removeAllItems();
             for (Domanda d : domandePossibili) {
-                if (!fatte.contains(d.getTesto()) && !categoriaConfermata(d, fatte, risposte))
+                if (!fatte.contains(d.getTesto()) && !categoriaConfermata(d, fatte, risposte)) {
                     comboDomande.addItem(d.getTesto());
+                }
             }
         };
 
         aggiornaCombo.run();
 
         btnSalva.addActionListener(_ ->
-                salvaPartitaInPersona(personaSegretaG1, personaSegretaG2, turno[0],
-                        abbattuteG1, abbattuteG2, domandeFatteG1, domandeFatteG2));
+                salvaPartitaInPersona(personaSegretaG1, personaSegretaG2, turno[0], abbattuteG1, abbattuteG2, domandeFatteG1, domandeFatteG2)
+        );
 
         btnIndovina.addActionListener(_ -> {
             int turnoCorrente = turno[0];
@@ -369,13 +369,15 @@ public class SchermataGioco extends JFrame {
                         "Hai vinto!", JOptionPane.INFORMATION_MESSAGE);
                 finePartita(pannelloLaterale, this::inizializzaInPersona);
             } else {
-                turno[0] = (turnoCorrente == 1) ? 2 : 1;
+                if (turnoCorrente == 1) {
+                    turno[0] = 2;
+                } else {
+                    turno[0] = 1;
+                }
                 labelTurno.setText("Turno: Giocatore " + turno[0]);
                 headerLaterale.setBackground(new Color(30, 100, 200));
                 aggiornaCombo.run();
-                JOptionPane.showMessageDialog(this,
-                        "Risposta sbagliata! Tocca al Giocatore " + turno[0],
-                        "Sbagliato!", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Risposta sbagliata! Tocca al Giocatore " + turno[0], "Sbagliato!", JOptionPane.WARNING_MESSAGE);
             }
         });
 
@@ -384,13 +386,34 @@ public class SchermataGioco extends JFrame {
             if (testoDomanda == null) return;
 
             int turnoCorrente = turno[0];
-            List<String>  domandeFatteCorrente = (turnoCorrente == 1) ? domandeFatteG1 : domandeFatteG2;
-            List<Boolean> risposteCorrenti     = (turnoCorrente == 1) ? risposteG1     : risposteG2;
+            List<String>  domandeFatteCorrente;
+            List<Boolean> risposteCorrenti;
 
-            Domanda domanda           = Domanda.fromTesto(testoDomanda);
-            int     avversario        = (turnoCorrente == 1) ? 2 : 1;
-            Persona segretaAvversario = (avversario == 1) ? personaSegretaG1 : personaSegretaG2;
-            boolean rispostaCorretta  = domanda.corrisponde(segretaAvversario);
+            if (turnoCorrente == 1) {
+                domandeFatteCorrente = domandeFatteG1;
+                risposteCorrenti     = risposteG1;
+            } else {
+                domandeFatteCorrente = domandeFatteG2;
+                risposteCorrenti     = risposteG2;
+            }
+
+            Domanda domanda = Domanda.fromTesto(testoDomanda);
+
+            int avversario;
+            if (turnoCorrente == 1) {
+                avversario = 2;
+            } else {
+                avversario = 1;
+            }
+
+            Persona segretaAvversario;
+            if (avversario == 1) {
+                segretaAvversario = personaSegretaG1;
+            } else {
+                segretaAvversario = personaSegretaG2;
+            }
+
+            boolean rispostaCorretta = domanda.corrisponde(segretaAvversario);
 
             boolean rispostaUtente;
             do {
@@ -409,8 +432,16 @@ public class SchermataGioco extends JFrame {
             domandeFatteCorrente.add(testoDomanda);
             risposteCorrenti.add(rispostaCorretta);
 
-            Map<String, JPanel> cartaDaAggiornare     = (turnoCorrente == 1) ? cartaPerNomeG1 : cartaPerNomeG2;
-            List<String>        abbattuteDaAggiornare = (turnoCorrente == 1) ? abbattuteG1    : abbattuteG2;
+            Map<String, JPanel> cartaDaAggiornare;
+            List<String>        abbattuteDaAggiornare;
+
+            if (turnoCorrente == 1) {
+                cartaDaAggiornare     = cartaPerNomeG1;
+                abbattuteDaAggiornare = abbattuteG1;
+            } else {
+                cartaDaAggiornare     = cartaPerNomeG2;
+                abbattuteDaAggiornare = abbattuteG2;
+            }
             for (Persona p : persone) {
                 if (domanda.corrisponde(p) != rispostaCorretta) {
                     abbattiCarta(p.getNome(), cartaDaAggiornare);
@@ -544,16 +575,18 @@ public class SchermataGioco extends JFrame {
             btnFaiDomanda.setEnabled(turnoGiocatore);
             btnIndovina.setEnabled(turnoGiocatore);
             btnSalva.setEnabled(turnoGiocatore);
-            labelTurno.setText(turnoGiocatore ? "Turno: Giocatore" : "Turno: Bot");
+            if (turnoGiocatore) {
+                labelTurno.setText("Turno: Giocatore");
+            } else {
+                labelTurno.setText("Turno: Bot");
+            }
             headerLaterale.setBackground(turnoGiocatore ? new Color(30, 100, 200) : new Color(180, 60, 60));
         };
 
         Runnable onRigioca = () -> inizializzaBot(bot, difficile);
 
         btnSalva.addActionListener(_ ->
-                salvaPartitaBot(personaSegreta, personaSegretaBot, turno[0],
-                        abbattuteGiocatore, abbattuteBot, domandeFatteGiocatore,
-                        sceltaCorrente[0], difficile));
+                salvaPartitaBot(personaSegreta, personaSegretaBot, turno[0], abbattuteGiocatore, abbattuteBot, domandeFatteGiocatore, sceltaCorrente[0], difficile));
 
         btnFaiDomanda.addActionListener(_ -> {
             String testoDomanda = (String) comboDomande.getSelectedItem();
@@ -671,13 +704,23 @@ public class SchermataGioco extends JFrame {
                         "Errore", JOptionPane.ERROR_MESSAGE);
         } while (rispostaGiocatore != rispostaCorretta);
 
-        Nodo ramoScartato = rispostaGiocatore ? sceltaCorrente[0].getNo() : sceltaCorrente[0].getSi();
+        Nodo ramoScartato;
+        if (rispostaGiocatore) {
+            ramoScartato = sceltaCorrente[0].getNo();
+        } else {
+            ramoScartato = sceltaCorrente[0].getSi();
+        }
+
         for (String nome : personeRaggiungibili(ramoScartato)) {
             abbattiCarta(nome, cartaPerNomeBot);
             if (!abbattuteBot.contains(nome)) abbattuteBot.add(nome);
         }
 
-        sceltaCorrente[0] = rispostaGiocatore ? sceltaCorrente[0].getSi() : sceltaCorrente[0].getNo();
+        if (rispostaGiocatore) {
+            sceltaCorrente[0] = sceltaCorrente[0].getSi();
+        } else {
+            sceltaCorrente[0] = sceltaCorrente[0].getNo();
+        }
         turno[0] = 1;
         aggiornaUI.run();
     }
